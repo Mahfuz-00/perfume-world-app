@@ -45,10 +45,10 @@ class TextEditor extends StatelessWidget {
       keyboardType: keyboardType,
       readOnly: readOnly,
       obscureText: obscureText,
-      style: textStyle ?? const TextStyle(fontSize: 16.0),
+      style: textStyle ?? const TextStyle(fontSize: 20.0),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: hintStyle ?? const TextStyle(color: AppColors.textGrey, fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 16),
+        hintStyle: hintStyle ?? const TextStyle(color: AppColors.textGrey, fontFamily: 'Roboto', fontWeight: FontWeight.w400, fontSize: 20),
         border: border ?? OutlineInputBorder(),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,

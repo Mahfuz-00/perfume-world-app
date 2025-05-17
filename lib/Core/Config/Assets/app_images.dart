@@ -55,4 +55,5 @@ class AppImages {
   static const String TodoIcon  = '${BasePath}To Do Icon.png';
   static const String InProgressIcon  = '${BasePath}In Progress Icon.png';
   static const String DoneIcon  = '${BasePath}Done Icon.png';
+  static const String CartIcon  = '${BasePath}Cart Icon.png';
 }
