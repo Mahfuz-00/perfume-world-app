@@ -37,7 +37,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 const Text(
                   'Welcome',
                   style: TextStyle(
-                    fontSize: 22.0,
+                    fontSize: 28.0,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Roboto',
                   ),
@@ -48,7 +48,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 const Text(
                   'To our Touch and Solve Family!',
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 20.0,
                     fontWeight: FontWeight.w400,
                     fontFamily: 'Roboto',
                   ),
@@ -59,8 +59,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      fixedSize: Size(MediaQuery.of(context).size.width * 0.8,
-                          MediaQuery.of(context).size.height * 0.06),
+                      fixedSize: Size(MediaQuery.of(context).size.width * 0.6,
+                          MediaQuery.of(context).size.height * 0.1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       ),
@@ -77,7 +77,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.textWhite,
-                        fontSize: 16.0,
+                        fontSize: 20.0,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Roboto',
                       ),

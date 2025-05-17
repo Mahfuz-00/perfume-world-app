@@ -21,7 +21,7 @@ class LabeledTextWithoutAsterisk extends StatelessWidget {
         text: text,
         style: TextStyle(
           color: AppColors.textBlack,
-          fontSize: 16,
+          fontSize: 20,
           fontWeight: FontWeight.w400,
           fontFamily: 'Roboto',
         ),

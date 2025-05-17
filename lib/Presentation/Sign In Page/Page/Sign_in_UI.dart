@@ -284,7 +284,7 @@ class _SignInPageState extends State<SignInPage> {
             }
             return Container(
               padding: EdgeInsets.only(
-                top: screenWidth * 0.2,
+                top: screenWidth * 0.05,
                 left: screenWidth * 0.1,
                 right: screenWidth * 0.1,
               ),
@@ -294,7 +294,7 @@ class _SignInPageState extends State<SignInPage> {
                 children: [
                   buildSignInText(),
                   SizedBox(
-                    height: screenHeight * 0.1,
+                    height: screenHeight * 0.05,
                   ),
                   LabeledTextWithoutAsterisk(text: 'Email'),
                   SizedBox(
@@ -320,10 +320,10 @@ class _SignInPageState extends State<SignInPage> {
                   SizedBox(
                     height: screenHeight * 0.1,
                   ),
-                  ORDivider(),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  // ORDivider(),
+                  // SizedBox(
+                  //   height: 30,
+                  // ),
                   IDSwitchButton(context),
                   SizedBox(
                     height: 20,
@@ -379,7 +379,7 @@ class _SignInPageState extends State<SignInPage> {
                     : 'Sign In with Employee ID',
                 style: TextStyle(
                   color: AppColors.primary,
-                  fontSize: 16.0,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Roboto',
                 ),
@@ -397,7 +397,7 @@ class _SignInPageState extends State<SignInPage> {
         const Text(
           "Don't have an account? ",
           style: TextStyle(
-            fontSize: 16.0,
+            fontSize: 20.0,
             fontWeight: FontWeight.w400,
             color: AppColors.textGrey,
           ),
@@ -407,7 +407,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Text(
             'Contact with HR',
             style: TextStyle(
-              fontSize: 16.0,
+              fontSize: 20.0,
               fontWeight: FontWeight.w400,
               color: AppColors.primary,
             ),
@@ -432,7 +432,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Text(
             'OR',
             style: TextStyle(
-              fontSize: 16.0,
+              fontSize: 20.0,
               fontWeight: FontWeight.w400,
               color: AppColors.textGrey,
             ),
@@ -449,68 +449,110 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  Row SignInandFingerScanButtons(BuildContext context) {
-    return Row(
-      children: [
-        ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              fixedSize: Size(MediaQuery.of(context).size.width * 0.57,
-                  MediaQuery.of(context).size.height * 0.06),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-              ),
+  SignInandFingerScanButtons(BuildContext context) {
+    return  Center(
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            fixedSize: Size(MediaQuery.of(context).size.width * 0.6,
+                MediaQuery.of(context).size.height * 0.1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5.0),
             ),
-            onPressed: () {
-              print('Email: ${_emailcontroller.text}');
-              print('Password: ${_passwordController.text}');
-              print('RememberMe: $isChecked');
-              // Trigger the sign-in event
-              BlocProvider.of<SignInBloc>(context).add(
-                PerformSignInEvent(
-                  username: _emailcontroller.text,
-                  password: _passwordController.text,
-                  rememberMe: isChecked,
-                ),
-              );
-              /* Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Dashboard(),
-                ),
-              );*/
-            },
-            child: Text(
-              'Sign In',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textWhite,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Roboto',
+          ),
+          onPressed: () {
+            print('Email: ${_emailcontroller.text}');
+            print('Password: ${_passwordController.text}');
+            print('RememberMe: $isChecked');
+            // Trigger the sign-in event
+            BlocProvider.of<SignInBloc>(context).add(
+              PerformSignInEvent(
+                username: _emailcontroller.text,
+                password: _passwordController.text,
+                rememberMe: isChecked,
               ),
-            )),
-        Spacer(),
-        ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              fixedSize: Size(MediaQuery.of(context).size.width * 0.2,
-                  MediaQuery.of(context).size.height * 0.06),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-              ),
+            );
+            /* Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Dashboard(),
+                  ),
+                );*/
+          },
+          child: Text(
+            'Sign In',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textWhite,
+              fontSize: 20.0,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Roboto',
             ),
-            onPressed: () {
-              _authenticate();
-           /*   showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const FingerScanOverlay(),
-              );*/
-            },
-            child: Image.asset(AppImages.FingerPrintIcon))
-      ],
+          )),
     );
+    // return Row(
+    //   children: [
+    //     Center(
+    //       child: ElevatedButton(
+    //           style: ElevatedButton.styleFrom(
+    //             backgroundColor: AppColors.primary,
+    //             fixedSize: Size(MediaQuery.of(context).size.width * 0.6,
+    //                 MediaQuery.of(context).size.height * 0.1),
+    //             shape: RoundedRectangleBorder(
+    //               borderRadius: BorderRadius.circular(5.0),
+    //             ),
+    //           ),
+    //           onPressed: () {
+    //             print('Email: ${_emailcontroller.text}');
+    //             print('Password: ${_passwordController.text}');
+    //             print('RememberMe: $isChecked');
+    //             // Trigger the sign-in event
+    //             BlocProvider.of<SignInBloc>(context).add(
+    //               PerformSignInEvent(
+    //                 username: _emailcontroller.text,
+    //                 password: _passwordController.text,
+    //                 rememberMe: isChecked,
+    //               ),
+    //             );
+    //             /* Navigator.pushReplacement(
+    //               context,
+    //               MaterialPageRoute(
+    //                 builder: (context) => Dashboard(),
+    //               ),
+    //             );*/
+    //           },
+    //           child: Text(
+    //             'Sign In',
+    //             textAlign: TextAlign.center,
+    //             style: TextStyle(
+    //               color: AppColors.textWhite,
+    //               fontSize: 20.0,
+    //               fontWeight: FontWeight.w500,
+    //               fontFamily: 'Roboto',
+    //             ),
+    //           )),
+    //     ),
+    //     // Spacer(),
+    //     // ElevatedButton(
+    //     //     style: ElevatedButton.styleFrom(
+    //     //       backgroundColor: AppColors.primary,
+    //     //       fixedSize: Size(MediaQuery.of(context).size.width * 0.2,
+    //     //           MediaQuery.of(context).size.height * 0.06),
+    //     //       shape: RoundedRectangleBorder(
+    //     //         borderRadius: BorderRadius.circular(5.0),
+    //     //       ),
+    //     //     ),
+    //     //     onPressed: () {
+    //     //       _authenticate();
+    //     //    /*   showDialog(
+    //     //         context: context,
+    //     //         barrierDismissible: false,
+    //     //         builder: (context) => const FingerScanOverlay(),
+    //     //       );*/
+    //     //     },
+    //     //     child: Image.asset(AppImages.FingerPrintIcon))
+    //   ],
+    // );
   }
 
   TextEditor IDTextEditor() {
@@ -582,7 +624,7 @@ class _SignInPageState extends State<SignInPage> {
         const Text(
           'Remember Me',
           style: TextStyle(
-            fontSize: 16.0,
+            fontSize: 20.0,
             fontWeight: FontWeight.w400,
             color: AppColors.textGrey, // Customize text color
           ),
@@ -596,7 +638,7 @@ class _SignInPageState extends State<SignInPage> {
             'Forgot Password?',
             style: TextStyle(
                 color: AppColors.primary,
-                fontSize: 16.0,
+                fontSize: 20.0,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Roboto'),
           ),
@@ -613,7 +655,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Text(
             'Sign In',
             style: TextStyle(
-              fontSize: 22.0,
+              fontSize: 28.0,
               fontWeight: FontWeight.w600,
               fontFamily: 'Roboto',
             ),
@@ -626,7 +668,7 @@ class _SignInPageState extends State<SignInPage> {
           child: Text(
             'Sign in to my Account',
             style: TextStyle(
-              fontSize: 16.0,
+              fontSize: 20.0,
               fontWeight: FontWeight.w400,
               fontFamily: 'Roboto',
             ),
