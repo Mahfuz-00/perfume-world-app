@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
 
 import '../../../Domain/Entities/dashboard_entities.dart';
 import '../../../Domain/Usecases/dashboard_usecase.dart';

@@ -10,7 +10,7 @@ class DashboardInitialState extends DashboardState {}
 class DashboardLoadingState extends DashboardState {}
 
 class DashboardLoadedState extends DashboardState {
-  final DashboardEntity dashboardData;
+  final List<ProductEntity> dashboardData;
 
   DashboardLoadedState({required this.dashboardData});
 

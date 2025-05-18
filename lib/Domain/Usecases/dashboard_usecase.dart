@@ -1,3 +1,5 @@
+import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
+
 import '../Entities/dashboard_entities.dart';
 import '../Repositories/dashboard_repositories.dart';
 
@@ -6,7 +8,7 @@ class GetDashboardDataUseCase {
 
   GetDashboardDataUseCase({required this.repository});
 
-  Future<DashboardEntity> call() async {
+  Future<List<ProductEntity>> call() async {
     return await repository.getDashboardData();
   }
 }
