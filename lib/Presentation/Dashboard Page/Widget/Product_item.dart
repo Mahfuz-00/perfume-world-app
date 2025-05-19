@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../core/config/assets/app_images.dart';
-import '../../../core/config/theme/app_colors.dart';
-import '../../../Domain/Entities/product_entities.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:perfume_world_app/core/config/assets/app_images.dart';
+import 'package:perfume_world_app/core/config/theme/app_colors.dart';
+import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
+import '../Bloc/cart_bloc.dart';
 import 'add_to_cart_dialog.dart';
 
 class ProductItem extends StatelessWidget {
@@ -12,6 +14,7 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('CartBloc available in ProductItem: ${context.read<CartBloc>()}');
     return Container(
       width: width,
       padding: EdgeInsets.all(8),
@@ -34,6 +37,18 @@ class ProductItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Image.asset(
+            AppImages.ActivityIcon,
+            fit: BoxFit.cover,
+            height: MediaQuery.of(context).size.height * 0.15,
+            width: double.infinity,
+            errorBuilder: (context, error, stackTrace) => Icon(
+              Icons.broken_image,
+              size: 50,
+              color: AppColors.textAsh,
+            ),
+          ),
+          SizedBox(height: 4),
           Text(
             product.name,
             style: TextStyle(
@@ -60,7 +75,7 @@ class ProductItem extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            '\৳${product.price}',
+            '৳${product.price}',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -95,7 +110,10 @@ class ProductItem extends StatelessWidget {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (context) => AddToCartDialog(product: product),
+                  builder: (dialogContext) => AddToCartDialog(
+                    product: product,
+                    cartBloc: context.read<CartBloc>(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
