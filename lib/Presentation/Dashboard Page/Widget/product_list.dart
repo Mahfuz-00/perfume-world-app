@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:perfume_world_app/core/config/theme/app_colors.dart';
 import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
+import '../Bloc/cart_bloc.dart';
 import 'product_item.dart';
 import 'search_boxes.dart';
-
 
 class ProductList extends StatefulWidget {
   final List<ProductEntity> products;
@@ -45,17 +46,22 @@ class _ProductListState extends State<ProductList> {
                 ),
               ),
               SizedBox(
-                width: screenWidth * 0.5,
+                width: screenWidth * 0.3,
                 child: ProductSearch(
+                  products: widget.products,
                   onNameSearch: (value) => setState(() => nameQuery = value),
                   onSerialSearch: (value) => setState(() => serialQuery = value),
+                  cartBloc: context.read<CartBloc>(),
                 ),
               ),
             ],
           ),
           SizedBox(height: 8),
           filteredProducts.isEmpty
-              ? Center(child: Text('No products available'))
+              ? Center(child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Text('No products available'),
+              ))
               : Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -63,7 +69,7 @@ class _ProductListState extends State<ProductList> {
             children: filteredProducts.map((product) {
               return ProductItem(
                 product: product,
-                width: (screenWidth - 48) / 3,
+                width: (screenWidth - 48) / 4.2,
               );
             }).toList(),
           ),

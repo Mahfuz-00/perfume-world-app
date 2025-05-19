@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../Common/Bloc/profile_bloc.dart';
 import '../../../Common/Bloc/signout_bloc.dart';
 import '../../../Common/Helper/dimmed_overlay.dart';
+import '../../../Common/Models/cart_model.dart';
 import '../../../Common/Widgets/bottom_navigation_bar.dart';
 import '../../../Common/Widgets/internet_connection_check.dart';
 import '../../../Core/Config/Assets/app_images.dart';
@@ -17,9 +18,13 @@ import '../Bloc/cart_bloc.dart';
 import '../Bloc/dashboard_bloc.dart';
 import '../Widget/attendance_card.dart';
 import '../Widget/cards.dart';
+import '../Widget/customer_search.dart';
+import '../Widget/invoice_input.dart';
+import '../Widget/invoice_table.dart';
 import '../Widget/leave_card.dart';
 import '../Widget/meeting_card.dart';
 import '../Widget/product_list.dart';
+import '../Widget/product_search.dart';
 import '../Widget/task_card.dart';
 import '../Widget/voucher_card.dart';
 
@@ -31,6 +36,10 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  Customer? _selectedCustomer;
+  final Map<CartItem, double> _itemDiscounts = {};
+
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +54,7 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    print('CartBloc available in Dashboard: ${context.read<CartBloc>()}');
     return InternetConnectionChecker(
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
@@ -53,237 +63,307 @@ class _DashboardState extends State<Dashboard> {
           } else if (state is DashboardLoadedState) {
             return Scaffold(
               body: SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        color: AppColors.backgroundWhite,
-                        padding: EdgeInsets.all(5),
-                        height: screenHeight * 0.1,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            // BlocBuilder for Profile Details
-                            BlocBuilder<ProfileBloc, ProfileState>(
-                              builder: (context, state) {
-                                if (state is ProfileLoading) {
-                                  return Center(
-                                      child: CircularProgressIndicator());
-                                } else if (state is ProfileLoaded) {
-                                  final profile = state.profile;
-                                  return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // Name and Designation
-                                      SizedBox(
-                                        width: screenWidth * 0.55,
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 1.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              // Name and Verified Icon
-                                              Row(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      profile.name ?? 'N/A',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontFamily: 'Roboto',
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      color: AppColors.backgroundWhite,
+                      padding: EdgeInsets.all(5),
+                      height: screenHeight * 0.1,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // BlocBuilder for Profile Details
+                          BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, state) {
+                              if (state is ProfileLoading) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              } else if (state is ProfileLoaded) {
+                                final profile = state.profile;
+                                return Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // Name and Designation
+                                    SizedBox(
+                                      width: screenWidth * 0.55,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 1.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            // Name and Verified Icon
+                                            Row(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    profile.name ?? 'N/A',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontFamily: 'Roboto',
                                                     ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
                                                   ),
-                                                  SizedBox(width: 8.0),
-                                                  Icon(
-                                                    Icons.verified,
-                                                    color: AppColors.primary,
-                                                    size: screenWidth * 0.015,
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(height: 5),
-                                              // Designation
-                                              Text(
-                                                profile.designation ?? 'N/A',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.primary,
-                                                  fontFamily: 'Roboto',
-                                                  fontWeight: FontWeight.w400,
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Avatar
-                                      GestureDetector(
-                                        // onTap: () {
-                                        //   // Navigate to user profile page
-                                        //   Navigator.push(
-                                        //     context,
-                                        //     MaterialPageRoute(
-                                        //       builder: (context) => Profile(),
-                                        //     ),
-                                        //   );
-                                        // },
-                                      onTapDown: (details) => _showProfileDropdown(context, details.globalPosition),
-                                        child: SizedBox(
-                                          width: screenWidth * 0.1,
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            child: ClipRRect(
-                                              borderRadius:
-                                              BorderRadius.circular(8),
-                                              child: profile.photoUrl != null
-                                                  ? CachedNetworkImage(
-                                                imageUrl:
-                                                profile.photoUrl!,
-                                                fit: BoxFit.cover,
-                                                placeholder:
-                                                    (context, url) =>
-                                                    Padding(
-                                                      padding:
-                                                      const EdgeInsets
-                                                          .all(16.0),
-                                                      child: OverlayLoader(),
-                                                    ),
-                                                errorWidget: (context,
-                                                    url, error) =>
-                                                    Container(
-                                                      decoration:
-                                                      BoxDecoration(
-                                                        color: Colors
-                                                            .grey.shade300,
-                                                        shape:
-                                                        BoxShape.circle,
-                                                      ),
-                                                      alignment:
-                                                      Alignment.center,
-                                                      child: Icon(
-                                                        Icons.error,
-                                                        color: Colors.red,
-                                                      ),
-                                                    ),
-                                              )
-                                                  : Image.asset(
-                                                AppImages.ProfileImage,
-                                                fit: BoxFit.cover,
-                                              ),
+                                                SizedBox(width: 8.0),
+                                                Icon(
+                                                  Icons.verified,
+                                                  color: AppColors.primary,
+                                                  size: screenWidth * 0.015,
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else if (state is ProfileError) {
-                                  return Center(
-                                    child: Text('Error: ${state.message}'),
-                                  );
-                                }
-                                return Container(
-                                  color: AppColors.backgroundWhite,
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              },
-                            ),
-
-                            SizedBox(width: 8),
-                            // Cart Icon
-                            BlocBuilder<CartBloc, CartState>(
-                              builder: (context, cartState) {
-                                int itemCount = cartState is CartUpdated ? cartState.cartItems.length : 0;
-                                print('Cart items count: $itemCount');
-
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    // Handle cart navigation (to be implemented)
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.topRight,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppColors.backgroundGrey,
-                                        ),
-                                        child: Icon(
-                                          Icons.shopping_cart,
-                                          size: 20,
-                                          color: AppColors.textAsh,
-                                        ),
-                                      ),
-                                      if (itemCount > 0)
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: Container(
-                                            padding: EdgeInsets.all(4),
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: AppColors.primary,
-                                            ),
-                                            child: Text(
-                                              '$itemCount',
+                                            SizedBox(height: 5),
+                                            // Designation
+                                            Text(
+                                              profile.designation ?? 'N/A',
                                               style: TextStyle(
-                                                fontSize: 10,
-                                                color: AppColors.backgroundWhite,
-                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: AppColors.primary,
                                                 fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w400,
                                               ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // Avatar
+                                    GestureDetector(
+                                      // onTap: () {
+                                      //   // Navigate to user profile page
+                                      //   Navigator.push(
+                                      //     context,
+                                      //     MaterialPageRoute(
+                                      //       builder: (context) => Profile(),
+                                      //     ),
+                                      //   );
+                                      // },
+                                    onTapDown: (details) => _showProfileDropdown(context, details.globalPosition),
+                                      child: SizedBox(
+                                        width: screenWidth * 0.1,
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                            BorderRadius.circular(8),
+                                            child: profile.photoUrl != null
+                                                ? CachedNetworkImage(
+                                              imageUrl:
+                                              profile.photoUrl!,
+                                              fit: BoxFit.cover,
+                                              placeholder:
+                                                  (context, url) =>
+                                                  Padding(
+                                                    padding:
+                                                    const EdgeInsets
+                                                        .all(16.0),
+                                                    child: OverlayLoader(),
+                                                  ),
+                                              errorWidget: (context,
+                                                  url, error) =>
+                                                  Container(
+                                                    decoration:
+                                                    BoxDecoration(
+                                                      color: Colors
+                                                          .grey.shade300,
+                                                      shape:
+                                                      BoxShape.circle,
+                                                    ),
+                                                    alignment:
+                                                    Alignment.center,
+                                                    child: Icon(
+                                                      Icons.error,
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                            )
+                                                : Image.asset(
+                                              AppImages.ProfileImage,
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                    ),
+                                  ],
                                 );
-                              },
-                            ),
-                          ],
-                        ),
+                              } else if (state is ProfileError) {
+                                return Center(
+                                  child: Text('Error: ${state.message}'),
+                                );
+                              }
+                              return Container(
+                                color: AppColors.backgroundWhite,
+                                child: Center(
+                                    child: CircularProgressIndicator()),
+                              );
+                            },
+                          ),
+
+                          SizedBox(width: 8),
+                          // Cart Icon
+                          BlocBuilder<CartBloc, CartState>(
+                            builder: (context, cartState) {
+                              int itemCount = cartState is CartUpdated ? cartState.cartItems.length : 0;
+                              print('Cart items count: $itemCount');
+
+
+                              return GestureDetector(
+                                onTap: () {
+                                  // Handle cart navigation (to be implemented)
+                                },
+                                child: Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.backgroundGrey,
+                                      ),
+                                      child: Icon(
+                                        Icons.shopping_cart,
+                                        size: 20,
+                                        color: AppColors.textAsh,
+                                      ),
+                                    ),
+                                    if (itemCount > 0)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: Container(
+                                          padding: EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: AppColors.primary,
+                                          ),
+                                          child: Text(
+                                            '$itemCount',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: AppColors.backgroundWhite,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Roboto',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      //Perfume-World App
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: state is DashboardLoadingState
-                            ? Center(child: CircularProgressIndicator())
-                            : state is DashboardLoadedState
-                            ? ProductList(products: state.dashboardData as List<ProductEntity>)
-                            : state is DashboardErrorState
-                            ? Center(child: Text('Error: No Product Found'))
-                            : SizedBox.shrink(),
+                    ),
+                    //Perfume-World App
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          print('Available height: ${constraints.maxHeight}');
+                          return BlocBuilder<DashboardBloc, DashboardState>(
+                            builder: (context, state) {
+                              if (state is DashboardLoadingState) {
+                                return Center(child: OverlayLoader());
+                              } else if (state is DashboardErrorState) {
+                                print('Dashboard Error: ${state.message}');
+                                return Center(child: Text('Error: ${state.message}'));
+                              }
+                              final List<ProductEntity> products = state is DashboardLoadedState
+                                  ? state.dashboardData
+                                  : [];
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Left Part: Product Search and List
+                                  Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+
+                                          // SizedBox(height: 16),
+                                          Expanded(
+                                            child: SingleChildScrollView(child: ProductList(products: products)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // Right Part: Customer Search, Invoice Table, Inputs
+                                  Expanded(
+                                    flex: 1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          CustomerSearchWidget(
+                                            onCustomerSelected: (customer) {
+                                              setState(() {
+                                                _selectedCustomer = customer;
+                                              });
+                                            },
+                                          ),
+                                          SizedBox(height: 16),
+                                          InvoiceTableWidget(
+                                            onDiscountChanged: (item, discount) {
+                                              setState(() {
+                                                _itemDiscounts[item] = discount;
+                                              });
+                                            },
+                                            itemDiscounts: _itemDiscounts,
+                                            selectedCustomer: _selectedCustomer,
+                                          ),
+                                          SizedBox(height: 16),
+                                          // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              bottomNavigationBar: SizedBox(
-                height: screenHeight * 0.08,
-                child: BottomNavBar(
-                  containerHeight: screenHeight * 0.08,
-                  currentPage: 'Home',
+                    ),
+
+
+
+
+
+
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: state is DashboardLoadingState
+                    //       ? Center(child: CircularProgressIndicator())
+                    //       : state is DashboardLoadedState
+                    //       ? ProductList(products: state.dashboardData as List<ProductEntity>)
+                    //       : state is DashboardErrorState
+                    //       ? Center(child: Text('Error: No Product Found'))
+                    //       : SizedBox.shrink(),
+                    // ),
+                  ],
                 ),
               ),
             );
