@@ -137,10 +137,10 @@ class _FAQState extends State<FAQ> {
       ),
       bottomNavigationBar: SizedBox(
         height: screenHeight * 0.08,
-        child: BottomNavBar(
-          containerHeight: screenHeight * 0.08,
-          currentPage: '',
-        ),
+        // child: BottomNavBar(
+        //   containerHeight: screenHeight * 0.08,
+        //   currentPage: '',
+        // ),
       ),
     );
   }
