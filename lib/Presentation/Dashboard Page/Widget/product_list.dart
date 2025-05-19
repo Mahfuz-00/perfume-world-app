@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:perfume_world_app/Presentation/Dashboard%20Page/Widget/search_boxes.dart';
 import 'package:perfume_world_app/core/config/theme/app_colors.dart';
 import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
-import '../bloc/dashboard_bloc.dart';
 import 'product_item.dart';
+import 'search_boxes.dart';
+
 
 class ProductList extends StatefulWidget {
-  const ProductList({super.key});
+  final List<ProductEntity> products;
+
+  const ProductList({super.key, required this.products});
 
   @override
   _ProductListState createState() => _ProductListState();
@@ -20,6 +21,12 @@ class _ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final filteredProducts = widget.products.where((product) {
+      final nameMatch = product.name.toLowerCase().contains(nameQuery.toLowerCase());
+      final serialMatch = product.code.toLowerCase().contains(serialQuery.toLowerCase());
+      return nameMatch && serialMatch;
+    }).toList();
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
@@ -47,39 +54,18 @@ class _ProductListState extends State<ProductList> {
             ],
           ),
           SizedBox(height: 8),
-          BlocBuilder<DashboardBloc, DashboardState>(
-            builder: (context, state) {
-              if (state is DashboardLoadingState) {
-                return Center(child: CircularProgressIndicator());
-              } else if (state is DashboardLoadedState) {
-                final allProducts = state.dashboardData as List<ProductEntity>;
-                final products = allProducts.where((product) {
-                  final nameMatch = product.name.toLowerCase().contains(nameQuery.toLowerCase());
-                  final serialMatch = product.code.toLowerCase().contains(serialQuery.toLowerCase());
-                  return nameMatch && serialMatch;
-                }).toList();
-
-                if (products.isEmpty) {
-                  return Center(child: Text('No products available'));
-                }
-
-                return Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  alignment: WrapAlignment.start,
-                  children: products.map((product) {
-                    return ProductItem(
-                      product: product,
-                      width: (screenWidth - 48) / 3,
-                    );
-                  }).toList(),
-                );
-              } else if (state is DashboardErrorState) {
-                print('Dashboard Error: ${state.message}');
-                return Center(child: Text('Error: ${state.message}'));
-              }
-              return SizedBox.shrink();
-            },
+          filteredProducts.isEmpty
+              ? Center(child: Text('No products available'))
+              : Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.start,
+            children: filteredProducts.map((product) {
+              return ProductItem(
+                product: product,
+                width: (screenWidth - 48) / 3,
+              );
+            }).toList(),
           ),
         ],
       ),

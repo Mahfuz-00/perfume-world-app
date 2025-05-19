@@ -13,6 +13,7 @@ import '../../../Data/Sources/dashboard_remote_source.dart';
 import '../../../Domain/Entities/product_entities.dart';
 import '../../Onboarding Page/Page/Onboarding_UI.dart';
 import '../../Profile Page/Page/profile_UI.dart';
+import '../Bloc/cart_bloc.dart';
 import '../Bloc/dashboard_bloc.dart';
 import '../Widget/attendance_card.dart';
 import '../Widget/cards.dart';
@@ -209,22 +210,56 @@ class _DashboardState extends State<Dashboard> {
 
                             SizedBox(width: 8),
                             // Cart Icon
-                            GestureDetector(
-                              onTap: () {
-                                // Handle cart navigation (to be implemented)
+                            BlocBuilder<CartBloc, CartState>(
+                              builder: (context, cartState) {
+                                int itemCount = cartState is CartUpdated ? cartState.cartItems.length : 0;
+                                print('Cart items count: $itemCount');
+
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Handle cart navigation (to be implemented)
+                                  },
+                                  child: Stack(
+                                    alignment: Alignment.topRight,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.backgroundGrey,
+                                        ),
+                                        child: Icon(
+                                          Icons.shopping_cart,
+                                          size: 20,
+                                          color: AppColors.textAsh,
+                                        ),
+                                      ),
+                                      if (itemCount > 0)
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            padding: EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: AppColors.primary,
+                                            ),
+                                            child: Text(
+                                              '$itemCount',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors.backgroundWhite,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: 'Roboto',
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
                               },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.backgroundGrey,
-                                ),
-                                child: Icon(
-                                  Icons.shopping_cart,
-                                  size: 20,
-                                  color: AppColors.textAsh,
-                                ),
-                              ),
                             ),
                           ],
                         ),
@@ -232,7 +267,13 @@ class _DashboardState extends State<Dashboard> {
                       //Perfume-World App
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: ProductList(),
+                        child: state is DashboardLoadingState
+                            ? Center(child: CircularProgressIndicator())
+                            : state is DashboardLoadedState
+                            ? ProductList(products: state.dashboardData as List<ProductEntity>)
+                            : state is DashboardErrorState
+                            ? Center(child: Text('Error: No Product Found'))
+                            : SizedBox.shrink(),
                       ),
                     ],
                   ),

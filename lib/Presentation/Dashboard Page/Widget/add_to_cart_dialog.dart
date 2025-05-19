@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/config/theme/app_colors.dart';
-import '../../../Domain/Entities/product_entities.dart';
-import '../bloc/cart_bloc.dart';
+import 'package:perfume_world_app/core/config/theme/app_colors.dart';
+import 'package:perfume_world_app/Domain/Entities/product_entities.dart';
+import '../Bloc/cart_bloc.dart';
 
 class AddToCartDialog extends StatefulWidget {
   final ProductEntity product;
+  final CartBloc cartBloc; // Add CartBloc as a parameter
 
-  const AddToCartDialog({super.key, required this.product});
+  const AddToCartDialog({
+    super.key,
+    required this.product,
+    required this.cartBloc,
+  });
 
   @override
   _AddToCartDialogState createState() => _AddToCartDialogState();
@@ -30,7 +35,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Price per unit: \$${price.toStringAsFixed(2)}',
+            'Price per unit: ৳${price.toStringAsFixed(2)}',
             style: TextStyle(fontSize: 14, fontFamily: 'Roboto', color: AppColors.textAsh),
           ),
           SizedBox(height: 8),
@@ -57,7 +62,7 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
           ),
           SizedBox(height: 8),
           Text(
-            'Total: \$${totalPrice.toStringAsFixed(2)}',
+            'Total: ৳${totalPrice.toStringAsFixed(2)}',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Roboto', color: AppColors.primary),
           ),
         ],
@@ -72,7 +77,8 @@ class _AddToCartDialogState extends State<AddToCartDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            context.read<CartBloc>().add(AddToCartEvent(product: widget.product, quantity: quantity));
+            print('Adding to cart: ${widget.product.name}, quantity: $quantity');
+            widget.cartBloc.add(AddToCartEvent(product: widget.product, quantity: quantity));
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
