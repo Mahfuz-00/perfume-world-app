@@ -10,6 +10,7 @@ import '../../../Common/Widgets/bottom_navigation_bar.dart';
 import '../../../Common/Widgets/internet_connection_check.dart';
 import '../../../Core/Config/Assets/app_images.dart';
 import '../../../Core/Config/Theme/app_colors.dart';
+import '../../../Data/Models/customer.dart';
 import '../../../Data/Sources/dashboard_remote_source.dart';
 import '../../../Domain/Entities/product_entities.dart';
 import '../../Onboarding Page/Page/Onboarding_UI.dart';
@@ -314,29 +315,32 @@ class _DashboardState extends State<Dashboard> {
                                     flex: 1,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          CustomerSearchWidget(
-                                            onCustomerSelected: (customer) {
-                                              setState(() {
-                                                _selectedCustomer = customer;
-                                              });
-                                            },
-                                          ),
-                                          SizedBox(height: 16),
-                                          InvoiceTableWidget(
-                                            onDiscountChanged: (item, discount) {
-                                              setState(() {
-                                                _itemDiscounts[item] = discount;
-                                              });
-                                            },
-                                            itemDiscounts: _itemDiscounts,
-                                            selectedCustomer: _selectedCustomer,
-                                          ),
-                                          SizedBox(height: 16),
-                                          // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),
-                                        ],
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            CustomerSearchWidget(
+                                              onCustomerSelected: (customer) {
+                                                setState(() {
+                                                  _selectedCustomer = customer;
+                                                  print(' Customer : ${_selectedCustomer?.name}');
+                                                });
+                                              },
+                                            ),
+                                            SizedBox(height: 16),
+                                            InvoiceTableWidget(
+                                              onDiscountChanged: (item, discount) {
+                                                setState(() {
+                                                  _itemDiscounts[item] = discount;
+                                                });
+                                              },
+                                              itemDiscounts: _itemDiscounts,
+                                              selectedCustomer: _selectedCustomer?.name,
+                                            ),
+                                            SizedBox(height: 16),
+                                            // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -442,10 +446,10 @@ class _DashboardState extends State<Dashboard> {
       ],
     ).then((value) {
       if (value == 'profile') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Profile()),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => Profile()),
+        // );
       } else if (value == 'logout') {
         context.read<SignOutBloc>().add(SignoutEvent());
       }

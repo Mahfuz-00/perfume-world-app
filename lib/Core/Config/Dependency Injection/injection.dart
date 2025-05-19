@@ -66,14 +66,14 @@ import '../../../Domain/Usecases/sign_in_usercases.dart';
 import '../../../Domain/Usecases/signout_usecase.dart';
 import '../../../Domain/Usecases/voucher_form_usecase.dart';
 import '../../../Domain/Usecases/voucher_usecase.dart';
-import '../../../Presentation/Activity Creation Page/Bloc/activity_form_bloc.dart';
-import '../../../Presentation/Attendance Dashboard Page/Bloc/attendance_form_bloc.dart';
+// import '../../../Presentation/Activity Creation Page/Bloc/activity_form_bloc.dart';
+// import '../../../Presentation/Attendance Dashboard Page/Bloc/attendance_form_bloc.dart';
 import '../../../Presentation/Dashboard Page/Bloc/dashboard_bloc.dart';
-import '../../../Presentation/Leave Creation Page/Bloc/leave_form_bloc.dart';
-import '../../../Presentation/Leave Dashboard Page/Bloc/leave_bloc.dart';
-import '../../../Presentation/Voucher Creation Page/Bloc/headofaccounts_bloc.dart';
-import '../../../Presentation/Voucher Creation Page/Bloc/voucher_form_bloc.dart';
-import '../../../Presentation/Voucher Dashboard Page/Bloc/voucher_bloc.dart';
+// import '../../../Presentation/Leave Creation Page/Bloc/leave_form_bloc.dart';
+// import '../../../Presentation/Leave Dashboard Page/Bloc/leave_bloc.dart';
+// import '../../../Presentation/Voucher Creation Page/Bloc/headofaccounts_bloc.dart';
+// import '../../../Presentation/Voucher Creation Page/Bloc/voucher_form_bloc.dart';
+// import '../../../Presentation/Voucher Dashboard Page/Bloc/voucher_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -131,8 +131,8 @@ Future<void> init() async {
       () => ActivityFormUseCase(getIt())); // Create activity use case.
 
   // **9. Register ActivityFormBloc (depends on ActivityFormUseCase)**
-  getIt.registerFactory(() => ActivityFormBloc(
-      getIt<ActivityFormUseCase>())); // Inject the correct use case.
+  // getIt.registerFactory(() => ActivityFormBloc(
+  //     getIt<ActivityFormUseCase>())); // Inject the correct use case.
 
   // **10. Register Repository**
   getIt.registerLazySingleton<ActivityFormRepository>(
@@ -159,10 +159,10 @@ Future<void> init() async {
     () => SubmitLeaveFormUseCase(getIt<LeaveFormRepository>()),
   );
 
-  getIt.registerFactory<LeaveFormBloc>(
-    () =>
-        LeaveFormBloc(submitLeaveFormUseCase: getIt<SubmitLeaveFormUseCase>()),
-  );
+  // getIt.registerFactory<LeaveFormBloc>(
+  //   () =>
+  //       LeaveFormBloc(submitLeaveFormUseCase: getIt<SubmitLeaveFormUseCase>()),
+  // );
 
   //Attendance Form Submission
 
@@ -178,8 +178,8 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => AttendanceFormUseCase(repository: getIt()));
 
   // Register AttendanceBloc with the use case
-  getIt.registerFactory(
-      () => AttendanceFormBloc(attendanceFormUseCase: getIt()));
+  // getIt.registerFactory(
+  //     () => AttendanceFormBloc(attendanceFormUseCase: getIt()));
 
   //Voucher Form Submission
 
@@ -194,8 +194,8 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => SubmitVoucherFormUseCase(getIt()));
 
   // Register VoucherFormBloc with the use case
-  getIt.registerFactory(() => VoucherFormBloc(
-      submitVoucherFormUseCase: getIt<SubmitVoucherFormUseCase>()));
+  // getIt.registerFactory(() => VoucherFormBloc(
+  //     submitVoucherFormUseCase: getIt<SubmitVoucherFormUseCase>()));
 
   //Profile
   getIt.registerLazySingleton<ProfileRemoteSource>(
@@ -260,7 +260,7 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => GetExpenseHeadsUseCase(getIt()));
 
   // Presentation layer
-  getIt.registerFactory(() => ExpenseHeadBloc(getIt()));
+  // getIt.registerFactory(() => ExpenseHeadBloc(getIt()));
 
   //Attendance Dashboard
   // Remote Data Source
@@ -291,7 +291,7 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => GetLeaveUseCase(repository: getIt()));
 
   // Bloc
-  getIt.registerFactory(() => LeaveBloc(getLeaveApplicationsUseCase: getIt()));
+  // getIt.registerFactory(() => LeaveBloc(getLeaveApplicationsUseCase: getIt()));
 
   //Voucher Dashboard
   getIt.registerLazySingleton<VoucherRemoteDataSource>(
@@ -299,7 +299,7 @@ Future<void> init() async {
   getIt.registerLazySingleton<VoucherRepository>(
       () => VoucherRepositoryImpl(remoteDataSource: getIt()));
   getIt.registerLazySingleton(() => GetVouchers(repository: getIt()));
-  getIt.registerFactory(() => VoucherBloc(getVouchers: getIt()));
+  // getIt.registerFactory(() => VoucherBloc(getVouchers: getIt()));
 
   //Dashboard
   getIt.registerLazySingleton<DashboardRemoteSource>(

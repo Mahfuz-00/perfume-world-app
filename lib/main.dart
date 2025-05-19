@@ -15,23 +15,23 @@ import 'Data/Sources/remote_data_sources.dart';
 import 'Domain/Usecases/activity_form_usercase.dart';
 import 'Domain/Usecases/activity_usecases.dart';
 import 'Domain/Usecases/sign_in_usercases.dart';
-import 'Presentation/Activity Creation Page/Bloc/activity_form_bloc.dart';
-import 'Presentation/Activity Dashboard Page/Bloc/activity_bloc.dart';
-import 'Presentation/Activity Dashboard Page/Bloc/activity_event.dart';
-import 'Presentation/Attendance Dashboard Page/Bloc/attendance_bloc.dart';
-import 'Presentation/Attendance Dashboard Page/Bloc/attendance_form_bloc.dart';
+// import 'Presentation/Activity Creation Page/Bloc/activity_form_bloc.dart';
+// import 'Presentation/Activity Dashboard Page/Bloc/activity_bloc.dart';
+// import 'Presentation/Activity Dashboard Page/Bloc/activity_event.dart';
+// import 'Presentation/Attendance Dashboard Page/Bloc/attendance_bloc.dart';
+// import 'Presentation/Attendance Dashboard Page/Bloc/attendance_form_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/cart_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/dashboard_bloc.dart';
 import 'Presentation/Dashboard Page/Page/dashboard_UI.dart';
 import 'Core/Config/Dependency Injection/injection.dart' as di;
 
-import 'Presentation/Leave Creation Page/Bloc/leave_form_bloc.dart';
-import 'Presentation/Leave Dashboard Page/Bloc/leave_bloc.dart';
+// import 'Presentation/Leave Creation Page/Bloc/leave_form_bloc.dart';
+// import 'Presentation/Leave Dashboard Page/Bloc/leave_bloc.dart';
 import 'Presentation/Onboarding Page/Page/Onboarding_UI.dart';
 import 'Presentation/Sign In Page/Bloc/sign_in_bloc.dart';
-import 'Presentation/Voucher Creation Page/Bloc/headofaccounts_bloc.dart';
-import 'Presentation/Voucher Creation Page/Bloc/voucher_form_bloc.dart';
-import 'Presentation/Voucher Dashboard Page/Bloc/voucher_bloc.dart';
+// import 'Presentation/Voucher Creation Page/Bloc/headofaccounts_bloc.dart';
+// import 'Presentation/Voucher Creation Page/Bloc/voucher_form_bloc.dart';
+// import 'Presentation/Voucher Dashboard Page/Bloc/voucher_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,37 +96,37 @@ class MyApp extends StatelessWidget {
           return MultiBlocProvider(
             providers: [
               BlocProvider(create: (context) => BottomNavBarCubit(0)),
-              BlocProvider<ActivityBloc>(
-                create: (context) {
-                  final fetchTasksUseCase =
-                  di.getIt<ActivityUseCase>(); // DI resolve here
-                  final taskBloc = ActivityBloc(fetchTasksUseCase);
-                  taskBloc.add(
-                      LoadActivityEvent()); // Add the event right after Bloc initialization
-                  return taskBloc;
-                },
-              ),
+              // BlocProvider<ActivityBloc>(
+              //   create: (context) {
+              //     final fetchTasksUseCase =
+              //     di.getIt<ActivityUseCase>(); // DI resolve here
+              //     final taskBloc = ActivityBloc(fetchTasksUseCase);
+              //     taskBloc.add(
+              //         LoadActivityEvent()); // Add the event right after Bloc initialization
+              //     return taskBloc;
+              //   },
+              // ),
               BlocProvider<SignInBloc>(
                 create: (context) {
                   final loginUseCase = getIt<SigninUseCase>();
                   return SignInBloc(loginUseCase);
                 },
               ),
-              BlocProvider<ActivityFormBloc>(
-                create: (context) {
-                  final activityFormUseCase = getIt<ActivityFormUseCase>();
-                  return ActivityFormBloc(activityFormUseCase);
-                },
-              ),
-              BlocProvider<LeaveFormBloc>(
-                create: (context) => getIt<LeaveFormBloc>(),
-              ),
-              BlocProvider(
-                create: (context) => getIt<AttendanceFormBloc>(),
-              ),
-              BlocProvider(
-                create: (context) => getIt<VoucherFormBloc>(),
-              ),
+              // BlocProvider<ActivityFormBloc>(
+              //   create: (context) {
+              //     final activityFormUseCase = getIt<ActivityFormUseCase>();
+              //     return ActivityFormBloc(activityFormUseCase);
+              //   },
+              // ),
+              // BlocProvider<LeaveFormBloc>(
+              //   create: (context) => getIt<LeaveFormBloc>(),
+              // ),
+              // BlocProvider(
+              //   create: (context) => getIt<AttendanceFormBloc>(),
+              // ),
+              // BlocProvider(
+              //   create: (context) => getIt<VoucherFormBloc>(),
+              // ),
               BlocProvider(
                 create: (context) => getIt<ProfileBloc>(),
               ),
@@ -140,18 +140,18 @@ class MyApp extends StatelessWidget {
               BlocProvider(
                 create: (context) => getIt<ProjectBloc>(),
               ),
-              BlocProvider(create: (_) => getIt<ExpenseHeadBloc>()),
-              BlocProvider(
-                create: (_) => AttendanceBloc(
-                  getAttendanceRequestsUseCase: getIt(),
-                ),
-              ),
-              BlocProvider(
-                create: (_) => getIt<LeaveBloc>(),
-              ),
-              BlocProvider(
-                create: (_) => getIt<VoucherBloc>()..add(FetchVouchersEvent()),
-              ),
+              // BlocProvider(create: (_) => getIt<ExpenseHeadBloc>()),
+              // BlocProvider(
+              //   create: (_) => AttendanceBloc(
+              //     getAttendanceRequestsUseCase: getIt(),
+              //   ),
+              // ),
+              // BlocProvider(
+              //   create: (_) => getIt<LeaveBloc>(),
+              // ),
+              // BlocProvider(
+              //   create: (_) => getIt<VoucherBloc>()..add(FetchVouchersEvent()),
+              // ),
               BlocProvider(
                 create: (_) => getIt<DashboardBloc>()..add(LoadDashboardDataEvent()),
               ),

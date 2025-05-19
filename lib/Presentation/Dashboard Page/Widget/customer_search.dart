@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:perfume_world_app/core/config/theme/app_colors.dart';
 
+import '../../../Data/Models/customer.dart';
 import 'add_customer.dart';
-
-
-class Customer {
-  final String name;
-  final String phone;
-
-  Customer({required this.name, required this.phone});
-}
 
 class CustomerSearchWidget extends StatefulWidget {
   final Function(Customer?) onCustomerSelected;
