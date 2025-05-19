@@ -75,22 +75,37 @@ class _ProductSearchState extends State<ProductSearch> {
 
     widget.onSerialSearch(serial);
 
-    // Automatically open AddToCartDialog on exact match
+// Check stock and add to cart directly on exact match
     if (_foundProduct != null) {
-      showDialog(
-        context: context,
-        builder: (dialogContext) => AddToCartDialog(
+      final availableStock = int.tryParse(_foundProduct!.quantity) ?? 0;
+      if (availableStock >= 1) {
+        widget.cartBloc.add(AddToCartEvent(
           product: _foundProduct!,
-          cartBloc: widget.cartBloc,
-        ),
-      ).then((_) {
-        // Clear the serial field after adding to cart
+          quantity: 1,
+        ));
+        print('AddToCartEvent dispatched for ${_foundProduct!.name}, quantity: 1');
+// Clear the serial field after adding to cart
         _serialController.clear();
         setState(() {
           _foundProduct = null;
         });
         widget.onSerialSearch('');
-      });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Insufficient stock for ${_foundProduct!.name}',
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Roboto',
+                color: AppColors.backgroundWhite,
+              ),
+            ),
+            backgroundColor: AppColors.primary,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
