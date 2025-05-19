@@ -1,9 +1,9 @@
 class ProductEntity {
   final int id;
-  final String groupId;
-  final String categoryId;
-  final String brandId;
-  final String unitId;
+  final int groupId;
+  final int categoryId;
+  final int brandId;
+  final int unitId;
   final String code;
   final String name;
   final String price;
@@ -12,13 +12,13 @@ class ProductEntity {
   final String model;
   final String warrantyDay;
   final String? lifeTime;
-  final String openingBalance;
+  final int openingBalance;
   final String openingBalanceDate;
   final String slug;
   final String assetType;
   final String status;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   final StockEntity stock;
 
   ProductEntity({
@@ -40,8 +40,8 @@ class ProductEntity {
     required this.slug,
     required this.assetType,
     required this.status,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     required this.stock,
   });
 }
@@ -49,7 +49,7 @@ class ProductEntity {
 class StockEntity {
   final int id;
   final String quantity;
-  final String productId;
+  final int productId;
   final String price;
   final String finalPrice;
   final String discount;

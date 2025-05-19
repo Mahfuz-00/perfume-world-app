@@ -10,24 +10,32 @@ part 'cart_state.dart';
 class CartBloc extends Bloc<CartEvent, CartState> {
   CartBloc() : super(CartInitial()) {
     on<AddToCartEvent>((event, emit) {
-      print('AddToCartEvent received for ${event.product.name}, quantity: ${event.quantity}');
       final currentState = state;
-      List<CartItem> updatedCart = [];
-
-      if (currentState is CartUpdated) {
-        updatedCart = List.from(currentState.cartItems);
+      List<CartItem> updatedCart = currentState is CartUpdated ? List.from(currentState.cartItems) : [];
+      final index = updatedCart.indexWhere((item) => item.product.code == event.product.code);
+      if (index != -1) {
+        final existingItem = updatedCart[index];
+        updatedCart[index] = CartItem(
+          product: existingItem.product,
+          quantity: existingItem.quantity + event.quantity,
+          totalPrice: (double.tryParse(existingItem.product.price) ?? 0) * (existingItem.quantity + event.quantity),
+        );
+      } else {
+        final totalPrice = (double.tryParse(event.product.price) ?? 0) * event.quantity;
+        updatedCart.add(CartItem(product: event.product, quantity: event.quantity, totalPrice: totalPrice));
       }
-
-      final totalPrice = (double.tryParse(event.product.price) ?? 0) * event.quantity;
-      final newItem = CartItem(
-        product: event.product,
-        quantity: event.quantity,
-        totalPrice: totalPrice,
-      );
-
-      updatedCart.add(newItem);
-      print('Cart updated: ${updatedCart.length} items, total quantity: ${updatedCart.fold(0, (sum, item) => sum + item.quantity)}');
       emit(CartUpdated(cartItems: updatedCart));
+    });
+
+    on<RemoveFromCartEvent>((event, emit) {
+      print('RemoveFromCartEvent received for ${event.product.name}');
+      final currentState = state;
+      if (currentState is CartUpdated) {
+        final updatedCart = List<CartItem>.from(currentState.cartItems)
+          ..removeWhere((item) => item.product.code == event.product.code);
+        print('Cart updated: ${updatedCart.length} items');
+        emit(CartUpdated(cartItems: updatedCart));
+      }
     });
 
     on<ClearCartEvent>((event, emit) {
