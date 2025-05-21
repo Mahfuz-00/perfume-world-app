@@ -1,4 +1,4 @@
-// lib/presentation/widgets/customer_search.dart
+// lib/presentation/dashboard_page/widget/customer_search.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:perfume_world_app/core/config/theme/app_colors.dart';
@@ -21,6 +21,8 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   final TextEditingController _searchController = TextEditingController();
   List<Customer> _filteredCustomers = [];
   Customer? _selectedCustomer;
+  String? _lastAddedName; // Store name of last added customer
+  String? _lastAddedPhone; // Store phone of last added customer
 
   @override
   void initState() {
@@ -30,16 +32,20 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   }
 
   void _filterCustomers() {
-    final query = _searchController.text.toLowerCase();
+    final query = _searchController.text.trim().toLowerCase();
     final state = context.read<CustomerBloc>().state;
-    if (state is CustomerLoaded) {
-      setState(() {
-        _filteredCustomers = state.customers.where((customer) {
+    setState(() {
+      if (state is CustomerLoaded) {
+        _filteredCustomers = query.isEmpty
+            ? state.customers
+            : state.customers.where((customer) {
           return customer.name.toLowerCase().contains(query) ||
               customer.phone.contains(query);
         }).toList();
-      });
-    }
+      } else {
+        _filteredCustomers = [];
+      }
+    });
   }
 
   @override
@@ -47,16 +53,28 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
     return BlocConsumer<CustomerBloc, CustomerState>(
       listener: (context, state) {
         if (state is CustomerAdded) {
-          setState(() {
-            _selectedCustomer = state.customer;
-            _searchController.clear();
-          });
-          widget.onCustomerSelected(state.customer);
+          // Handle new customer added
+          if (_lastAddedName != null && _lastAddedPhone != null) {
+            final newCustomer = Customer(
+              id: 0, // Placeholder ID
+              name: _lastAddedName!,
+              phone: _lastAddedPhone!,
+              previousDue: 0,
+            );
+            setState(() {
+              _selectedCustomer = newCustomer;
+              _searchController.clear();
+              // Keep _filteredCustomers as is (no re-fetch)
+              _lastAddedName = null; // Clear stored values
+              _lastAddedPhone = null;
+            });
+            widget.onCustomerSelected(newCustomer);
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Customer added successfully'),
+              content: Text(state.message),
               backgroundColor: AppColors.primary,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
         } else if (state is CustomerError) {
@@ -64,17 +82,20 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
             SnackBar(
               content: Text(state.message),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
       },
       builder: (context, state) {
         if (state is CustomerLoading) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
-        _filteredCustomers = (state is CustomerLoaded) ? state.customers : _filteredCustomers;
+        // Only update _filteredCustomers when query is empty and state is loaded
+        if (state is CustomerLoaded && _searchController.text.isEmpty) {
+          _filteredCustomers = state.customers;
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +113,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                     ),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 IconButton(
                   icon: Icon(Icons.add, color: AppColors.primary),
                   onPressed: () {
@@ -100,6 +121,10 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                       context: context,
                       builder: (context) => AddCustomerBottomSheet(
                         onAddCustomer: (name, phone) {
+                          setState(() {
+                            _lastAddedName = name; // Store name
+                            _lastAddedPhone = phone; // Store phone
+                          });
                           context.read<CustomerBloc>().add(
                             AddCustomerEvent(name: name, phone: phone),
                           );
@@ -110,7 +135,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (_selectedCustomer != null)
               Text(
                 'Selected: ${_selectedCustomer!.name} (${_selectedCustomer!.phone})',
@@ -122,7 +147,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                 ),
               ),
             if (_searchController.text.isNotEmpty && _filteredCustomers.isNotEmpty)
-              Container(
+              SizedBox(
                 height: 100,
                 child: ListView.builder(
                   itemCount: _filteredCustomers.length,
@@ -131,7 +156,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                     return ListTile(
                       title: Text(
                         '${customer.name} (${customer.phone})',
-                        style: TextStyle(fontSize: 14, fontFamily: 'Roboto'),
+                        style: const TextStyle(fontSize: 14, fontFamily: 'Roboto'),
                       ),
                       onTap: () {
                         setState(() {
@@ -153,6 +178,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
 
   @override
   void dispose() {
+    _searchController.removeListener(_filterCustomers);
     _searchController.dispose();
     super.dispose();
   }

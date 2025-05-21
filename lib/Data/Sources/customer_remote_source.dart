@@ -5,7 +5,7 @@ import 'package:perfume_world_app/data/models/customer_model.dart';
 
 abstract class CustomerRemoteDataSource {
   Future<List<CustomerModel>> getCustomers();
-  Future<CustomerModel> addCustomer(String name, String phone);
+  Future<String> addCustomer(String name, String phone);
 }
 
 class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
@@ -54,7 +54,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   }
 
   @override
-  Future<CustomerModel> addCustomer(String name, String phone) async {
+  Future<String> addCustomer(String name, String phone) async {
     AppURLS appURLs = AppURLS();
     String? authToken = await appURLs.getAuthToken();
     print('Token: $authToken');
@@ -66,7 +66,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
 
     try {
       final response = await client.post(
-        Uri.parse('${appURLs.Basepath}/api/pos/customer/'),
+        Uri.parse('${appURLs.Basepath}/api/pos/customer/store'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $authToken',
@@ -80,12 +80,11 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
       print('POST Response Status Code: ${response.statusCode}');
       print('POST Response Body: ${response.body}');
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
-        final Map<String, dynamic> data = responseBody['data'];
-        final CustomerModel customer = CustomerModel.fromJson(data);
-        print('Added Customer: $customer');
-        return customer;
+        final String message = responseBody['message'] as String;
+        print('Add Customer Message: $message');
+        return message;
       } else {
         print('Failed to add customer: ${response.reasonPhrase}');
         throw Exception('Failed to add customer: ${response.reasonPhrase}');
