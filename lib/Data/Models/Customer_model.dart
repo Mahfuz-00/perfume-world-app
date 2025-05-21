@@ -7,8 +7,8 @@ class CustomerModel extends Customer {
     return CustomerModel(
       id: json['id'] as int,
       name: json['name'] as String,
-      phone: json['phone'] as String,
-      previousDue: (json['previous_due'] as num).toDouble(),
+      phone: json['phone'] as String? ?? 'No Phone Number',
+      previousDue: (json['balance'] as num).toDouble(),
     );
   }
 

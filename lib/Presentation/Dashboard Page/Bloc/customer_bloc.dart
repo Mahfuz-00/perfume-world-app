@@ -28,8 +28,9 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   Future<void> _onAddCustomer(AddCustomerEvent event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
     try {
-      final customer = await addCustomer(event.name, event.phone);
-      emit(CustomerAdded(customer));
+      final message = await addCustomer(event.name, event.phone);
+      emit(CustomerAdded(message)); // Updated to use message
+      // Optionally refresh customer list
       final customers = await getCustomers();
       emit(CustomerLoaded(customers as List<Customer>));
     } catch (e) {

@@ -17,7 +17,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Customer> addCustomer(String name, String phone) async {
+  Future<String> addCustomer(String name, String phone) async {
     try {
       return await remoteDataSource.addCustomer(name, phone);
     } catch (e) {

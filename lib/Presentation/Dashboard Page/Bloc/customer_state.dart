@@ -20,12 +20,12 @@ class CustomerLoaded extends CustomerState {
 }
 
 class CustomerAdded extends CustomerState {
-  final Customer customer;
+  final String message; // Changed to String
 
-  CustomerAdded(this.customer);
+  CustomerAdded(this.message);
 
   @override
-  List<Object?> get props => [customer];
+  List<Object> get props => [message];
 }
 
 class CustomerError extends CustomerState {
