@@ -47,7 +47,9 @@ class _AddCustomerBottomSheetState extends State<AddCustomerBottomSheet> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
+              errorText: _phoneController.text.length != 11 && _phoneController.text.isNotEmpty ? 'Phone number must be 11 digits' : null,
             ),
+            maxLength: 11,
             keyboardType: TextInputType.phone,
           ),
           SizedBox(height: 16),

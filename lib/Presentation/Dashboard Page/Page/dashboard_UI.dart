@@ -17,17 +17,10 @@ import '../../Onboarding Page/Page/Onboarding_UI.dart';
 import '../../Profile Page/Page/profile_UI.dart';
 import '../Bloc/cart_bloc.dart';
 import '../Bloc/dashboard_bloc.dart';
-import '../Widget/attendance_card.dart';
-import '../Widget/cards.dart';
 import '../Widget/customer_search.dart';
-import '../Widget/invoice_input.dart';
 import '../Widget/invoice_table.dart';
-import '../Widget/leave_card.dart';
-import '../Widget/meeting_card.dart';
 import '../Widget/product_list.dart';
 import '../Widget/product_search.dart';
-import '../Widget/task_card.dart';
-import '../Widget/voucher_card.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -320,7 +313,12 @@ class _DashboardState extends State<Dashboard> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             CustomerSearchWidget(
-                                              onCustomerSelected: (customer) => print('Selected: $customer'),
+                                              onCustomerSelected: (customer) {
+                                                setState(() {
+                                                  _selectedCustomer = customer;
+                                                  print('Selected: $customer');
+                                                });
+                                              },
                                             ),
                                             SizedBox(height: 16),
                                             InvoiceTableWidget(
@@ -330,7 +328,7 @@ class _DashboardState extends State<Dashboard> {
                                                 });
                                               },
                                               itemDiscounts: _itemDiscounts,
-                                              selectedCustomer: _selectedCustomer?.name,
+                                              selectedCustomer: _selectedCustomer,
                                             ),
                                             SizedBox(height: 16),
                                             // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),

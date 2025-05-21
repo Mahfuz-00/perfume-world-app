@@ -5,11 +5,20 @@ class Invoice {
   final List<InvoiceItem>? items;
 
   Invoice({this.invoiceNo, this.type, this.vat, this.items});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'invoice_no': invoiceNo,
+      'type': type,
+      'vat': vat,
+      'data': items?.map((item) => item.toJson()).toList(),
+    };
+  }
 }
 
 class InvoiceItem {
   final String? customerId;
-  final String? productId;
+  final int? productId;
   final String? productName;
   final String? quantity;
   final String? serials;
@@ -37,4 +46,22 @@ class InvoiceItem {
     this.totalPrice,
     this.costUnitPrice,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'customer_id': customerId,
+      'product_id': productId,
+      'product_name': productName,
+      'quantity': quantity,
+      'serials': serials,
+      'price': price,
+      'discount': discount,
+      'inv_discount': invDiscount,
+      'address': address,
+      'description': description,
+      'tarms_and_conditions': termsAndConditions,
+      'totalPrice': totalPrice,
+      'cost_unit_price': costUnitPrice,
+    };
+  }
 }

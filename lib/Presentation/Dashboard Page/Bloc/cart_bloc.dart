@@ -19,6 +19,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
           product: existingItem.product,
           quantity: existingItem.quantity + event.quantity,
           totalPrice: (double.tryParse(existingItem.product.price) ?? 0) * (existingItem.quantity + event.quantity),
+          serial: existingItem.serial,
         );
       } else {
         final totalPrice = (double.tryParse(event.product.price) ?? 0) * event.quantity;

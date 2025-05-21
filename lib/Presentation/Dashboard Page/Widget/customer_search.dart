@@ -1,4 +1,3 @@
-// lib/presentation/dashboard_page/widget/customer_search.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:perfume_world_app/core/config/theme/app_colors.dart';
@@ -23,6 +22,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   Customer? _selectedCustomer;
   String? _lastAddedName; // Store name of last added customer
   String? _lastAddedPhone; // Store phone of last added customer
+  int _retryCount = 0; // Limit retries
 
   @override
   void initState() {
@@ -36,12 +36,18 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
     final state = context.read<CustomerBloc>().state;
     setState(() {
       if (state is CustomerLoaded) {
-        _filteredCustomers = query.isEmpty
-            ? state.customers
-            : state.customers.where((customer) {
+        _filteredCustomers = state.customers
+            .map((c) => Customer(
+          id: c.id,
+          name: c.name,
+          phone: c.phone,
+          previousDue: c.previousDue ?? 0,
+        ))
+            .where((customer) {
           return customer.name.toLowerCase().contains(query) ||
               customer.phone.contains(query);
-        }).toList();
+        })
+            .toList();
       } else {
         _filteredCustomers = [];
       }
@@ -52,24 +58,13 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   Widget build(BuildContext context) {
     return BlocConsumer<CustomerBloc, CustomerState>(
       listener: (context, state) {
+        print('CustomerBloc State: $state');
         if (state is CustomerAdded) {
-          // Handle new customer added
-          if (_lastAddedName != null && _lastAddedPhone != null) {
-            final newCustomer = Customer(
-              id: 0, // Placeholder ID
-              name: _lastAddedName!,
-              phone: _lastAddedPhone!,
-              previousDue: 0,
-            );
-            setState(() {
-              _selectedCustomer = newCustomer;
-              _searchController.clear();
-              // Keep _filteredCustomers as is (no re-fetch)
-              _lastAddedName = null; // Clear stored values
-              _lastAddedPhone = null;
-            });
-            widget.onCustomerSelected(newCustomer);
-          }
+          // Clear search, show SnackBar, wait for CustomerLoaded
+          setState(() {
+            _searchController.clear();
+            _retryCount = 0; // Reset retries
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -77,7 +72,46 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
               duration: const Duration(seconds: 2),
             ),
           );
+        } else if (state is CustomerLoaded && _lastAddedPhone != null) {
+          // Find customer by phone after fetch
+          print('Looking for customer with phone: $_lastAddedPhone');
+          print('Available customers: ${state.customers.map((c) => c.phone).toList()}');
+          dynamic fetchedCustomer;
+          for (var customer in state.customers) {
+            if (customer.phone == _lastAddedPhone) {
+              fetchedCustomer = customer;
+              break;
+            }
+          }
+          if (fetchedCustomer != null) {
+            final selectedCustomer = Customer(
+              id: fetchedCustomer.id,
+              name: fetchedCustomer.name,
+              phone: fetchedCustomer.phone,
+              previousDue: fetchedCustomer.previousDue ?? 0,
+            );
+            print('Selected customer: ${selectedCustomer.name}, ID: ${selectedCustomer.id}');
+            setState(() {
+              _selectedCustomer = selectedCustomer;
+              _lastAddedName = null;
+              _lastAddedPhone = null;
+              _retryCount = 0;
+            });
+            widget.onCustomerSelected(selectedCustomer);
+          } else {
+            print('Customer with phone $_lastAddedPhone not found');
+            if (_retryCount < 2) {
+              _retryCount++;
+              print('Retrying fetch ($_retryCount/2) for phone: $_lastAddedPhone');
+              Future.delayed(Duration(seconds: 2), () {
+                if (_lastAddedPhone != null) {
+                  context.read<CustomerBloc>().add(FetchCustomers());
+                }
+              });
+            }
+          }
         } else if (state is CustomerError) {
+          print('CustomerError: ${state.message}');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -88,13 +122,15 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
         }
       },
       builder: (context, state) {
-        if (state is CustomerLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        // Only update _filteredCustomers when query is empty and state is loaded
         if (state is CustomerLoaded && _searchController.text.isEmpty) {
-          _filteredCustomers = state.customers;
+          _filteredCustomers = state.customers
+              .map((c) => Customer(
+            id: c.id,
+            name: c.name,
+            phone: c.phone,
+            previousDue: c.previousDue ?? 0,
+          ))
+              .toList();
         }
 
         return Column(
@@ -110,6 +146,19 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      suffixIcon: state is CustomerLoading
+                          ? Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+                          : Icon(Icons.search, color: AppColors.textAsh),
                     ),
                   ),
                 ),
@@ -122,8 +171,8 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                       builder: (context) => AddCustomerBottomSheet(
                         onAddCustomer: (name, phone) {
                           setState(() {
-                            _lastAddedName = name; // Store name
-                            _lastAddedPhone = phone; // Store phone
+                            _lastAddedName = name;
+                            _lastAddedPhone = phone;
                           });
                           context.read<CustomerBloc>().add(
                             AddCustomerEvent(name: name, phone: phone),
@@ -140,7 +189,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
               Text(
                 'Selected: ${_selectedCustomer!.name} (${_selectedCustomer!.phone})',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Roboto',
                   color: AppColors.textAsh,
@@ -161,8 +210,6 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                       onTap: () {
                         setState(() {
                           _selectedCustomer = customer;
-                          _searchController.clear();
-                          _filteredCustomers = (state is CustomerLoaded) ? state.customers : _filteredCustomers;
                         });
                         widget.onCustomerSelected(customer);
                       },
