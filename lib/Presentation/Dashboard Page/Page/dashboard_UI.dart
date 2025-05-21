@@ -10,8 +10,8 @@ import '../../../Common/Widgets/bottom_navigation_bar.dart';
 import '../../../Common/Widgets/internet_connection_check.dart';
 import '../../../Core/Config/Assets/app_images.dart';
 import '../../../Core/Config/Theme/app_colors.dart';
-import '../../../Data/Models/customer.dart';
 import '../../../Data/Sources/dashboard_remote_source.dart';
+import '../../../Domain/Entities/customer_entities.dart';
 import '../../../Domain/Entities/product_entities.dart';
 import '../../Onboarding Page/Page/Onboarding_UI.dart';
 import '../../Profile Page/Page/profile_UI.dart';
@@ -320,12 +320,7 @@ class _DashboardState extends State<Dashboard> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             CustomerSearchWidget(
-                                              onCustomerSelected: (customer) {
-                                                setState(() {
-                                                  _selectedCustomer = customer;
-                                                  print(' Customer : ${_selectedCustomer?.name}');
-                                                });
-                                              },
+                                              onCustomerSelected: (customer) => print('Selected: $customer'),
                                             ),
                                             SizedBox(height: 16),
                                             InvoiceTableWidget(

@@ -10,8 +10,10 @@ import 'Common/Helper/local_database_helper.dart';
 import 'Core/Config/Dependency Injection/injection.dart';
 import 'Core/Config/Theme/app_colors.dart';
 import 'Data/Repositories/activity_repositories_impl.dart';
+import 'Data/Sources/customer_remote_source.dart';
 import 'Data/Sources/local_data_sources.dart';
 import 'Data/Sources/remote_data_sources.dart';
+import 'Domain/Repositories/customer_repositories.dart';
 import 'Domain/Usecases/activity_form_usercase.dart';
 import 'Domain/Usecases/activity_usecases.dart';
 import 'Domain/Usecases/sign_in_usercases.dart';
@@ -21,6 +23,7 @@ import 'Domain/Usecases/sign_in_usercases.dart';
 // import 'Presentation/Attendance Dashboard Page/Bloc/attendance_bloc.dart';
 // import 'Presentation/Attendance Dashboard Page/Bloc/attendance_form_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/cart_bloc.dart';
+import 'Presentation/Dashboard Page/Bloc/customer_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/dashboard_bloc.dart';
 import 'Presentation/Dashboard Page/Page/dashboard_UI.dart';
 import 'Core/Config/Dependency Injection/injection.dart' as di;
@@ -38,6 +41,9 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
   // Initialize dependencies
   await di.init();
+
+  print('CustomerRemoteDataSource: ${di.getIt.isRegistered<CustomerRemoteDataSource>()}');
+  print('CustomerRepository: ${di.getIt.isRegistered<CustomerRepository>()}');
   runApp(const MyApp());
 }
 
@@ -156,6 +162,7 @@ class MyApp extends StatelessWidget {
                 create: (_) => getIt<DashboardBloc>()..add(LoadDashboardDataEvent()),
               ),
               BlocProvider(create: (context) => CartBloc()),
+              BlocProvider(create: (_) => di.getIt<CustomerBloc>(),),
             ],
             child: snapshot.data!,
           );
