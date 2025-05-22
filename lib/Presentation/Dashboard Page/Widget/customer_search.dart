@@ -119,6 +119,12 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
               duration: const Duration(seconds: 3),
             ),
           );
+        } else if (state is ClearCustomerEvent) {
+          setState(() {
+            _filteredCustomers = [];
+            _searchController.clear();
+            _selectedCustomer = null; // Clear selected customer
+          });
         }
       },
       builder: (context, state) {

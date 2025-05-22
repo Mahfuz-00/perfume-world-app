@@ -21,6 +21,7 @@ import '../Widget/customer_search.dart';
 import '../Widget/invoice_table.dart';
 import '../Widget/product_list.dart';
 import '../Widget/product_search.dart';
+import '../Widget/zcspos.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -33,7 +34,6 @@ class _DashboardState extends State<Dashboard> {
   Customer? _selectedCustomer;
   final Map<CartItem, double> _itemDiscounts = {};
 
-
   @override
   void initState() {
     super.initState();
@@ -42,6 +42,7 @@ class _DashboardState extends State<Dashboard> {
       context.read<ProfileBloc>().add(FetchProfile());
       context.read<DashboardBloc>().add(LoadDashboardDataEvent());
     });
+    ZCSPosSdk.initSdk(context);
   }
 
   @override
@@ -53,7 +54,7 @@ class _DashboardState extends State<Dashboard> {
       child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoadingState) {
-            Center(child: OverlayLoader());
+            Center(child: CircularProgressIndicator());
           } else if (state is DashboardLoadedState) {
             return Scaffold(
               body: SafeArea(
@@ -67,202 +68,234 @@ class _DashboardState extends State<Dashboard> {
                       height: screenHeight * 0.1,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // BlocBuilder for Profile Details
-                          BlocBuilder<ProfileBloc, ProfileState>(
-                            builder: (context, state) {
-                              if (state is ProfileLoading) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              } else if (state is ProfileLoaded) {
-                                final profile = state.profile;
-                                return Row(
-                                  crossAxisAlignment:
+                          // Logo and Perfume World
+                          Flexible(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  AppImages.TNSLogoLarge,
+                                  width: screenWidth * 0.1,
+                                  height: screenHeight * 0.05,
+                                  fit: BoxFit.contain,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Perfume World',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Roboto',
+                                    color: AppColors.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Existing right-side content
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // BlocBuilder for Profile Details
+                              BlocBuilder<ProfileBloc, ProfileState>(
+                                builder: (context, state) {
+                                  if (state is ProfileLoading) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (state is ProfileLoaded) {
+                                    final profile = state.profile;
+                                    return Row(
+                                      crossAxisAlignment:
                                       CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    // Name and Designation
-                                    SizedBox(
-                                      width: screenWidth * 0.55,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 1.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            // Name and Verified Icon
-                                            Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        // Name and Designation
+                                        SizedBox(
+                                          width: screenWidth * 0.55,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 1.0),
+                                            child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                              CrossAxisAlignment.end,
                                               mainAxisAlignment:
                                               MainAxisAlignment.end,
                                               children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    profile.name ?? 'N/A',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
+                                                // Name and Verified Icon
+                                                Row(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        profile.name ?? 'N/A',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
                                                           FontWeight.w600,
-                                                      fontFamily: 'Roboto',
-                                                    ),
-                                                    overflow:
+                                                          fontFamily: 'Roboto',
+                                                        ),
+                                                        overflow:
                                                         TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                  ),
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 8.0),
+                                                    Icon(
+                                                      Icons.verified,
+                                                      color: AppColors.primary,
+                                                      size: screenWidth * 0.015,
+                                                    ),
+                                                  ],
                                                 ),
-                                                SizedBox(width: 8.0),
-                                                Icon(
-                                                  Icons.verified,
-                                                  color: AppColors.primary,
-                                                  size: screenWidth * 0.015,
+                                                SizedBox(height: 5),
+                                                // Designation
+                                                Text(
+                                                  profile.designation ?? 'N/A',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: AppColors.primary,
+                                                    fontFamily: 'Roboto',
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 5),
-                                            // Designation
-                                            Text(
-                                              profile.designation ?? 'N/A',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: AppColors.primary,
-                                                fontFamily: 'Roboto',
-                                                fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        // Avatar
+                                        GestureDetector(
+                                          // onTap: () {
+                                          //   // Navigate to user profile page
+                                          //   Navigator.push(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //       builder: (context) => Profile(),
+                                          //     ),
+                                          //   );
+                                          // },
+                                        onTapDown: (details) => _showProfileDropdown(context, details.globalPosition),
+                                          child: SizedBox(
+                                            width: screenWidth * 0.1,
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                BorderRadius.circular(8),
+                                                child: profile.photoUrl != null
+                                                    ? CachedNetworkImage(
+                                                  imageUrl:
+                                                  profile.photoUrl!,
+                                                  fit: BoxFit.cover,
+                                                  placeholder:
+                                                      (context, url) =>
+                                                      Padding(
+                                                        padding:
+                                                        const EdgeInsets
+                                                            .all(16.0),
+                                                        child: CircularProgressIndicator(),
+                                                      ),
+                                                  errorWidget: (context,
+                                                      url, error) =>
+                                                      Container(
+                                                        decoration:
+                                                        BoxDecoration(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                          shape:
+                                                          BoxShape.circle,
+                                                        ),
+                                                        alignment:
+                                                        Alignment.center,
+                                                        child: Icon(
+                                                          Icons.error,
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                )
+                                                    : Image.asset(
+                                                  AppImages.ProfileImage,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    // Avatar
-                                    GestureDetector(
-                                      // onTap: () {
-                                      //   // Navigate to user profile page
-                                      //   Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //       builder: (context) => Profile(),
-                                      //     ),
-                                      //   );
-                                      // },
-                                    onTapDown: (details) => _showProfileDropdown(context, details.globalPosition),
-                                      child: SizedBox(
-                                        width: screenWidth * 0.1,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: ClipRRect(
-                                            borderRadius:
-                                            BorderRadius.circular(8),
-                                            child: profile.photoUrl != null
-                                                ? CachedNetworkImage(
-                                              imageUrl:
-                                              profile.photoUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder:
-                                                  (context, url) =>
-                                                  Padding(
-                                                    padding:
-                                                    const EdgeInsets
-                                                        .all(16.0),
-                                                    child: OverlayLoader(),
-                                                  ),
-                                              errorWidget: (context,
-                                                  url, error) =>
-                                                  Container(
-                                                    decoration:
-                                                    BoxDecoration(
-                                                      color: Colors
-                                                          .grey.shade300,
-                                                      shape:
-                                                      BoxShape.circle,
-                                                    ),
-                                                    alignment:
-                                                    Alignment.center,
-                                                    child: Icon(
-                                                      Icons.error,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                            )
-                                                : Image.asset(
-                                              AppImages.ProfileImage,
-                                              fit: BoxFit.cover,
-                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else if (state is ProfileError) {
-                                return Center(
-                                  child: Text('Error: ${state.message}'),
-                                );
-                              }
-                              return Container(
-                                color: AppColors.backgroundWhite,
-                                child: Center(
-                                    child: CircularProgressIndicator()),
-                              );
-                            },
-                          ),
-
-                          SizedBox(width: 8),
-                          // Cart Icon
-                          BlocBuilder<CartBloc, CartState>(
-                            builder: (context, cartState) {
-                              int itemCount = cartState is CartUpdated ? cartState.cartItems.length : 0;
-                              print('Cart items count: $itemCount');
-
-
-                              return GestureDetector(
-                                onTap: () {
-                                  // Handle cart navigation (to be implemented)
+                                      ],
+                                    );
+                                  } else if (state is ProfileError) {
+                                    return Center(
+                                      child: Text('Error: ${state.message}'),
+                                    );
+                                  }
+                                  return Container(
+                                    color: AppColors.backgroundWhite,
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  );
                                 },
-                                child: Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: AppColors.backgroundGrey,
-                                      ),
-                                      child: Icon(
-                                        Icons.shopping_cart,
-                                        size: 20,
-                                        color: AppColors.textAsh,
-                                      ),
-                                    ),
-                                    if (itemCount > 0)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppColors.primary,
-                                          ),
-                                          child: Text(
-                                            '$itemCount',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: AppColors.backgroundWhite,
-                                              fontWeight: FontWeight.w600,
-                                              fontFamily: 'Roboto',
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
+                              ),
+
+                              SizedBox(width: 8),
+                              // Cart Icon
+                              // BlocBuilder<CartBloc, CartState>(
+                              //   builder: (context, cartState) {
+                              //     int itemCount = cartState is CartUpdated ? cartState.cartItems.length : 0;
+                              //     print('Cart items count: $itemCount');
+                              //
+                              //     return GestureDetector(
+                              //       onTap: () {
+                              //         // Handle cart navigation (to be implemented)
+                              //       },
+                              //       child: Stack(
+                              //         alignment: Alignment.topRight,
+                              //         children: [
+                              //           Container(
+                              //             padding: EdgeInsets.all(8),
+                              //             decoration: BoxDecoration(
+                              //               shape: BoxShape.circle,
+                              //               color: AppColors.backgroundGrey,
+                              //             ),
+                              //             child: Icon(
+                              //               Icons.shopping_cart,
+                              //               size: 20,
+                              //               color: AppColors.textAsh,
+                              //             ),
+                              //           ),
+                              //           if (itemCount > 0)
+                              //             Positioned(
+                              //               right: 0,
+                              //               top: 0,
+                              //               child: Container(
+                              //                 padding: EdgeInsets.all(4),
+                              //                 decoration: BoxDecoration(
+                              //                   shape: BoxShape.circle,
+                              //                   color: AppColors.primary,
+                              //                 ),
+                              //                 child: Text(
+                              //                   '$itemCount',
+                              //                   style: TextStyle(
+                              //                     fontSize: 10,
+                              //                     color: AppColors.backgroundWhite,
+                              //                     fontWeight: FontWeight.w600,
+                              //                     fontFamily: 'Roboto',
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //         ],
+                              //       ),
+                              //     );
+                              //   },
+                              // ),
+                            ],
                           ),
                         ],
                       ),
@@ -275,7 +308,7 @@ class _DashboardState extends State<Dashboard> {
                           return BlocBuilder<DashboardBloc, DashboardState>(
                             builder: (context, state) {
                               if (state is DashboardLoadingState) {
-                                return Center(child: OverlayLoader());
+                                return Center(child: CircularProgressIndicator());
                               } else if (state is DashboardErrorState) {
                                 print('Dashboard Error: ${state.message}');
                                 return Center(child: Text('Error: ${state.message}'));
@@ -345,11 +378,6 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
 
-
-
-
-
-
                     // Padding(
                     //   padding: const EdgeInsets.all(8.0),
                     //   child: state is DashboardLoadingState
@@ -370,7 +398,7 @@ class _DashboardState extends State<Dashboard> {
           }
           return Container(
               color: AppColors.backgroundWhite,
-              child: Center(child: OverlayLoader()));
+              child: Center(child: CircularProgressIndicator()));
         },
       ),
     );
@@ -387,16 +415,16 @@ class _DashboardState extends State<Dashboard> {
         overlay.size.height - tapPosition.dy,
       ),
       items: [
-        PopupMenuItem(
-          value: 'profile',
-          child: Row(
-            children: [
-              Icon(Icons.person, color: AppColors.primary),
-              SizedBox(width: 8),
-              Text('Profile', style: TextStyle(fontFamily: 'Roboto')),
-            ],
-          ),
-        ),
+        // PopupMenuItem(
+        //   value: 'profile',
+        //   child: Row(
+        //     children: [
+        //       Icon(Icons.person, color: AppColors.primary),
+        //       SizedBox(width: 8),
+        //       Text('Profile', style: TextStyle(fontFamily: 'Roboto')),
+        //     ],
+        //   ),
+        // ),
         PopupMenuItem(
           value: 'logout',
           child: BlocListener<SignOutBloc, SignOutState>(
@@ -495,9 +523,3 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
-
-
-
-
-
-
