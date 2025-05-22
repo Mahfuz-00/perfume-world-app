@@ -23,6 +23,20 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   String? _lastAddedName; // Store name of last added customer
   String? _lastAddedPhone; // Store phone of last added customer
   int _retryCount = 0; // Limit retries
+  bool cleared = false;
+
+  void clearCustomerTemporarily() {
+    setState(() {
+      _selectedCustomer = null;
+      cleared = true;
+    });
+
+    Future.delayed(Duration(seconds: 5), () {
+      setState(() {
+        cleared = false;
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -120,10 +134,11 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
             ),
           );
         } else if (state is ClearCustomerEvent) {
+          clearCustomerTemporarily();
           setState(() {
             _filteredCustomers = [];
             _searchController.clear();
-            _selectedCustomer = null; // Clear selected customer
+            _selectedCustomer = null;
           });
         }
       },
@@ -191,7 +206,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
               ],
             ),
             const SizedBox(height: 8),
-            if (_selectedCustomer != null)
+            if (_selectedCustomer != null && !cleared) ...[
               Text(
                 'Selected: ${_selectedCustomer!.name} (${_selectedCustomer!.phone})',
                 style: TextStyle(
@@ -201,6 +216,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                   color: AppColors.textAsh,
                 ),
               ),
+            ],
             if (_searchController.text.isNotEmpty && _filteredCustomers.isNotEmpty)
               SizedBox(
                 height: 100,
