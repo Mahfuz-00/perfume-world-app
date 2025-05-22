@@ -15,6 +15,9 @@ import 'Presentation/Dashboard Page/Bloc/cart_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/customer_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/dashboard_bloc.dart';
 import 'Presentation/Dashboard Page/Bloc/invoice_bloc.dart';
+import 'Presentation/Dashboard Page/Bloc/invoice_print_bloc.dart';
+import 'Presentation/Dashboard Page/Bloc/payment_bloc.dart';
+import 'Presentation/Dashboard Page/Bloc/payment_event.dart';
 import 'Presentation/Dashboard Page/Page/dashboard_UI.dart';
 import 'Core/Config/Dependency Injection/injection.dart' as di;
 import 'Presentation/Onboarding Page/Page/Onboarding_UI.dart';
@@ -96,6 +99,10 @@ class MyApp extends StatelessWidget {
               BlocProvider(create: (context) => CartBloc()),
               BlocProvider(create: (_) => di.getIt<CustomerBloc>(),),
               BlocProvider(create: (_) => di.getIt<InvoiceBloc>(),),
+              BlocProvider(create: (_) => InvoicePrintBloc()),
+              BlocProvider(
+                create: (_) => di.getIt<PaymentMethodBloc>()..add(FetchPaymentMethods()),
+              ),
             ],
             child: snapshot.data!,
           );

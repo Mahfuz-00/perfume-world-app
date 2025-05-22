@@ -1,4 +1,5 @@
 // lib/Core/Config/Dependency Injection/injection.dart
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -9,6 +10,7 @@ import '../../../Common/Helper/local_database_helper.dart';
 import '../../../Data/Repositories/customer_repositories_impl.dart';
 import '../../../Data/Repositories/dashboard_repositories_impl.dart';
 import '../../../Data/Repositories/invoice_repositories_impl.dart';
+import '../../../Data/Repositories/payment_repositories_impl.dart';
 import '../../../Data/Repositories/profile_repositories_impl.dart';
 import '../../../Data/Repositories/sign_in_repositories_impl.dart';
 import '../../../Data/Repositories/signout_repositories_impl.dart';
@@ -16,17 +18,20 @@ import '../../../Data/Sources/customer_remote_source.dart';
 import '../../../Data/Sources/dashboard_remote_source.dart';
 import '../../../Data/Sources/invoice_remote_source.dart';
 import '../../../Data/Sources/local_data_sources.dart';
+import '../../../Data/Sources/payment_remote_source.dart';
 import '../../../Data/Sources/profile_remote_source.dart';
 import '../../../Data/Sources/remote_data_sources.dart';
 import '../../../Domain/Repositories/customer_repositories.dart';
 import '../../../Domain/Repositories/dashboard_repositories.dart';
 import '../../../Domain/Repositories/invoice_repositories.dart';
+import '../../../Domain/Repositories/payment_repositories.dart';
 import '../../../Domain/Repositories/profile_repositories.dart';
 import '../../../Domain/Repositories/sign_in_repositories.dart';
 import '../../../Domain/Repositories/signout_repositories.dart';
 import '../../../Domain/Usecases/add_customer_usecase.dart';
 import '../../../Domain/Usecases/dashboard_usecase.dart';
 import '../../../Domain/Usecases/get_customer_usecase.dart';
+import '../../../Domain/Usecases/payment_usecase.dart';
 import '../../../Domain/Usecases/profile_usecase.dart';
 import '../../../Domain/Usecases/sign_in_usercases.dart';
 import '../../../Domain/Usecases/signout_usecase.dart';
@@ -35,6 +40,7 @@ import '../../../Domain/Usecases/submit_invoice.dart';
 import '../../../Presentation/Dashboard Page/Bloc/customer_bloc.dart';
 import '../../../Presentation/Dashboard Page/Bloc/dashboard_bloc.dart';
 import '../../../Presentation/Dashboard Page/Bloc/invoice_bloc.dart';
+import '../../../Presentation/Dashboard Page/Bloc/payment_bloc.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -92,23 +98,18 @@ Future<void> init() async {
   getIt.registerLazySingleton<CustomerRemoteDataSource>(
         () => CustomerRemoteDataSourceImpl(client: getIt<http.Client>()),
   );
-  print('CustomerRemoteDataSource registered: ${getIt.isRegistered<CustomerRemoteDataSource>()}');
 
   getIt.registerLazySingleton<CustomerRepository>(
         () => CustomerRepositoryImpl(remoteDataSource: getIt<CustomerRemoteDataSource>()),
   );
-  print('CustomerRepository registered: ${getIt.isRegistered<CustomerRepository>()}');
 
   getIt.registerLazySingleton<GetCustomers>(() => GetCustomers(getIt<CustomerRepository>()));
-  print('GetCustomers registered: ${getIt.isRegistered<GetCustomers>()}');
 
   getIt.registerLazySingleton<AddCustomer>(() => AddCustomer(getIt<CustomerRepository>()));
-  print('AddCustomer registered: ${getIt.isRegistered<AddCustomer>()}');
 
   getIt.registerFactory<CustomerBloc>(
         () => CustomerBloc(getIt<GetCustomers>(), getIt<AddCustomer>()),
   );
-  print('CustomerBloc registered: ${getIt.isRegistered<CustomerBloc>()}');
 
   //Invoice
   // Data sources
@@ -136,4 +137,26 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => GetDashboardDataUseCase(repository: getIt()));
 
   getIt.registerFactory(() => DashboardBloc(getDashboardDataUseCase: getIt()));
+
+
+  //Payment
+  // Data sources
+  getIt.registerLazySingleton<PaymentMethodRemoteDataSource>(
+        () => PaymentMethodRemoteDataSourceImpl(
+      client: getIt(),
+    ),
+  );
+
+  // Repositories
+  getIt.registerLazySingleton<PaymentMethodRepository>(
+        () => PaymentMethodRepositoryImpl(remoteDataSource: getIt()),
+  );
+
+  // Use cases
+  getIt.registerLazySingleton(() => GetPaymentMethods(getIt()));
+
+  // Blocs
+  getIt.registerFactory(() => PaymentMethodBloc(getPaymentMethods: getIt()));
+
+
 }

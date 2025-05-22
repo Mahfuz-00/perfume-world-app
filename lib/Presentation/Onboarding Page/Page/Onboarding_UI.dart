@@ -27,7 +27,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  AppImages.TNSLogoMedium,
+                  AppImages.TNSLogoLarge,
                   height: 185,
                   width: 225,
                 ),
@@ -46,7 +46,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   height: 5,
                 ),
                 const Text(
-                  'To our Touch and Solve Family!',
+                  'To Perfume World!',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.w400,

@@ -9,6 +9,12 @@ class CollectionModel extends Collection {
     String? collectionDate,
     String? paymentMethod,
     String? collectedAmount,
+    String? invoiceCollected,
+    String? invoiceDue,
+    String? chequeNo,
+    String? chequeDate,
+    String? refNo,
+    String? remarks,
   }) : super(
     customerId: customerId,
     prevDues: prevDues,
@@ -17,6 +23,12 @@ class CollectionModel extends Collection {
     collectionDate: collectionDate,
     paymentMethod: paymentMethod,
     collectedAmount: collectedAmount,
+    invoiceCollected: invoiceCollected,
+    invoiceDue: invoiceDue,
+    chequeNo: chequeNo,
+    chequeDate: chequeDate,
+    refNo: refNo,
+    remarks: remarks,
   );
 
   factory CollectionModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +40,12 @@ class CollectionModel extends Collection {
       collectionDate: json['collection_date'] as String?,
       paymentMethod: json['payment_method'] as String?,
       collectedAmount: json['collected_ammount'] as String?,
+      invoiceCollected: json['inv_collected'] as String?,
+      invoiceDue: json['inv_due'] as String?,
+      chequeNo: json['payment_check_no'] as String?,
+      chequeDate: json['cheque_date'] as String?,
+      refNo: json['ref_no'] as String?,
+      remarks: json['remarks'] as String?,
     );
   }
 
@@ -40,6 +58,12 @@ class CollectionModel extends Collection {
       'collection_date': collectionDate,
       'payment_method': paymentMethod,
       'collected_ammount': collectedAmount,
+      'inv_collected' : invoiceCollected,
+      'inv_due' : invoiceDue,
+      'payment_check_no' : chequeNo,
+      'cheque_date' : chequeDate,
+      'ref_no' : refNo,
+      'remarks' : remarks,
     };
   }
 }

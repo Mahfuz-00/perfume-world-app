@@ -8,6 +8,8 @@ import '../../../Domain/Entities/invoice_entities.dart';
 import '../Bloc/cart_bloc.dart';
 import '../Bloc/invoice_bloc.dart';
 import '../Bloc/invoice_event.dart';
+import '../Bloc/invoice_print_bloc.dart';
+import '../Bloc/invoice_print_event.dart';
 import '../Bloc/invoice_state.dart';
 import 'invoice_submit_dialog.dart';
 
@@ -81,6 +83,19 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
             // Access cartItems from CartBloc state
             final cartState = context.read<CartBloc>().state;
             final cartItems = cartState is CartUpdated ? cartState.cartItems : <CartItem>[];
+
+            // Initialize print data when dialog is triggered
+            context.read<InvoicePrintBloc>().add(InitializePrintData(
+              customer: widget.selectedCustomer,
+              totalPrice: _calculateTotal(cartItems),
+              invoiceNumber: invoiceNumber,
+              cartItems: cartItems,
+              itemDiscounts: widget.itemDiscounts,
+              vat: '0',
+              invoiceDiscount: _invoiceDiscountController.text,
+              shipping: _shippingController.text,
+            ));
+
             showDialog(
               context: context,
               builder: (dialogContext) => InvoiceSubmitDialog(
@@ -223,12 +238,12 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                 ),
                 SizedBox(height: 16),
                 Text('Invoice Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'Roboto')),
-                SizedBox(height: 8),
-                TextField(
-                  controller: _vatController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'VAT (%)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
-                ),
+                // SizedBox(height: 8),
+                // TextField(
+                //   controller: _vatController,
+                //   keyboardType: TextInputType.number,
+                //   decoration: InputDecoration(labelText: 'VAT (%)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+                // ),
                 SizedBox(height: 8),
                 TextField(
                   controller: _invoiceDiscountController,
@@ -281,30 +296,6 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                         fixedSize: Size(screenWidth * 0.2, screenHeight * 0.08),
                       ),
                       child: Text('Submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Roboto', color: AppColors.backgroundWhite)),
-                    ),
-                    ElevatedButton(
-                      onPressed: invoiceState is InvoiceSubmitted || invoiceState is CollectionSubmitted
-                          ? () {
-                        print('Sending to POS printer:');
-                        if (invoiceState is InvoiceSubmitted) {
-                          print('Invoice: ${invoiceState.invoice.toJson()}');
-                        }
-                        if (invoiceState is CollectionSubmitted) {
-                          print('Collection: ${invoiceState.collection.toJson()}');
-                        }
-                        context.read<InvoiceBloc>().add(ClearPrintDataEvent());
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Printed successfully'), backgroundColor: AppColors.primary, duration: const Duration(seconds: 2)),
-                        );
-                      }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        fixedSize: Size(screenWidth * 0.2, screenHeight * 0.08),
-                      ),
-                      child: Text('Print', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Roboto', color: AppColors.backgroundWhite)),
                     ),
                   ],
                 ),

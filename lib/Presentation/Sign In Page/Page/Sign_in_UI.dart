@@ -313,7 +313,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                   RememberMeAndForgotPassword(),
                   SizedBox(
-                    height: 40,
+                    height: screenHeight * 0.15,
                   ),
                   SignInandFingerScanButtons(context),
                   SizedBox(
@@ -323,11 +323,11 @@ class _SignInPageState extends State<SignInPage> {
                   // SizedBox(
                   //   height: 30,
                   // ),
-                  IDSwitchButton(context),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  FooterButton()
+                  // IDSwitchButton(context),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  // FooterButton()
                 ],
               ),
             );
