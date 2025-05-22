@@ -43,5 +43,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   void _onClearCustomer(ClearCustomerEvent event, Emitter<CustomerState> emit) {
     print('Clearing CustomerBloc state');
     emit(CustomerInitial());
+    emit(CustomerCleared());
   }
+
 }
