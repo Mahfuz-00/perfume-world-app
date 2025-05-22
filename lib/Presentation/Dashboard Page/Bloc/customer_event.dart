@@ -9,3 +9,5 @@ class AddCustomerEvent extends CustomerEvent {
 
   AddCustomerEvent({required this.name, required this.phone});
 }
+
+class ClearCustomerEvent extends CustomerEvent {}

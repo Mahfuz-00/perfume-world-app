@@ -17,3 +17,5 @@ class CartUpdated extends CartState {
   @override
   List<Object> get props => [cartItems];
 }
+
+class ClearCart extends CartEvent {}

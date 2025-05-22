@@ -210,6 +210,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                       onTap: () {
                         setState(() {
                           _selectedCustomer = customer;
+                          _searchController.text = '';
                         });
                         widget.onCustomerSelected(customer);
                       },

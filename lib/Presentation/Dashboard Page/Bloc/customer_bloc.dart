@@ -13,6 +13,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   CustomerBloc(this.getCustomers, this.addCustomer) : super(CustomerInitial()) {
     on<FetchCustomers>(_onFetchCustomers);
     on<AddCustomerEvent>(_onAddCustomer);
+    on<ClearCustomerEvent>(_onClearCustomer);
   }
 
   Future<void> _onFetchCustomers(FetchCustomers event, Emitter<CustomerState> emit) async {
@@ -36,5 +37,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     } catch (e) {
       emit(CustomerError(e.toString()));
     }
+  }
+
+
+  void _onClearCustomer(ClearCustomerEvent event, Emitter<CustomerState> emit) {
+    print('Clearing CustomerBloc state');
+    emit(CustomerInitial());
   }
 }

@@ -6,6 +6,12 @@ class Collection {
   final String? collectionDate;
   final String? paymentMethod;
   final String? collectedAmount;
+  final String? invoiceCollected;
+  final String? invoiceDue;
+  final String? chequeNo;
+  final String? chequeDate;
+  final String? refNo;
+  final String? remarks;
 
   Collection({
     this.customerId,
@@ -15,6 +21,12 @@ class Collection {
     this.collectionDate,
     this.paymentMethod,
     this.collectedAmount,
+    this.chequeNo,
+    this.chequeDate,
+    this.invoiceCollected,
+    this.invoiceDue,
+    this.refNo,
+    this.remarks,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +38,12 @@ class Collection {
       'collection_date': collectionDate,
       'payment_method': paymentMethod,
       'collected_ammount': collectedAmount,
+      'inv_collected' : invoiceCollected,
+      'inv_due' : invoiceDue,
+      'payment_check_no' : chequeNo,
+      'cheque_date' : chequeDate,
+      'ref_no' : refNo,
+      'remarks' : remarks,
     };
   }
 }
