@@ -42,6 +42,9 @@ class MainActivity : FlutterActivity() {
                     val success = printInvoice(call.arguments as Map<String, Any>)
                     result.success(success)
                 }
+                "showError" -> {
+                    result.success(null)
+                }
                 else -> {
                     result.notImplemented()
                 }
@@ -57,14 +60,16 @@ class MainActivity : FlutterActivity() {
                 Thread.sleep(1000)
                 status = mSys.sdkInit()
                 if (status != SdkResult.SDK_OK) {
-                    Log.e("SDK Initialization", "Failed to initialize SDK: status=$status")
+                    MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                        .invokeMethod("showError", "Failed to initialize SDK: status=$status")
                     return false
                 }
             }
             isSdkInitialized = true
             return true
         } catch (e: Exception) {
-            Log.e("SDK Initialization", "Failed to initialize SDK", e)
+            MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                .invokeMethod("showError", "Failed to initialize SDK: ${e.message ?: "Unknown error"}")
             return false
         }
     }
@@ -74,70 +79,74 @@ class MainActivity : FlutterActivity() {
             Log.d("Print Data", data.toString())
             val printStatus: Int = mPrinter.getPrinterStatus()
             if (printStatus == SdkResult.SDK_PRN_STATUS_PAPEROUT) {
-                Log.e("Invoice Printing", "Printer out of paper")
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Printer out of paper")
                 return "paper_out"
+            }
+            if (printStatus != SdkResult.SDK_OK) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Printer status error: $printStatus")
+                return "printer_error"
             }
             val format = PrnStrFormat()
             format.setTextSize(24) // Normal font size
             format.setStyle(PrnTextStyle.NORMAL)
             format.setFont(PrnTextFont.DEFAULT)
 
-            // Mushak and BIN
+            // Mushak - 6.3
             format.setAli(Layout.Alignment.ALIGN_CENTER)
             mPrinter.setPrintAppendString("Mushak - 6.3", format)
-            mPrinter.setPrintAppendString("", format) // Space
+            // BIN
+            mPrinter.setPrintAppendString("BIN : 000375101-0101 Central", format) // Space
 
-
-            // In printInvoice function
             // Load and print logo
-            val imagePath = data["imagePath"]?.toString()
-            if (!imagePath.isNullOrEmpty()) {
-                try {
-                    Log.d("Invoice Printing", "Loading logo from path: $imagePath")
-                    val assetPath = imagePath.replace("assets/", "flutter_assets/assets/images/")
-                    Log.d("Invoice Printing", "Asset path: $assetPath")
-                    val inputStream = try {
-                        assets.open(assetPath)
+            try {
+                Log.d("Invoice Printing", "Loading logo from drawable resource")
+                var bitmap: Bitmap? = null
+                // Retry loading resource up to 3 times
+                for (attempt in 1..3) {
+                    try {
+                        bitmap = BitmapFactory.decodeResource(resources, R.drawable.tns_logo_4x)
+                        break
                     } catch (e: Exception) {
                         MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
-                            .invokeMethod("showError", "Failed to open logo asset: $assetPath")
-                        null
-                    }
-                    if (inputStream == null) {
-                        MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
-                            .invokeMethod("showError", "Input stream is null for logo: $assetPath")
-                    } else {
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        inputStream.close()
-                        if (bitmap == null) {
-                            MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
-                                .invokeMethod("showError", "Failed to decode logo bitmap: $assetPath")
-                        } else {
-                            // Resize bitmap to fit printer width (e.g., 384px for 58mm printer)
-                            val printerWidth = 384
-                            val scaledBitmap = if (bitmap.width > printerWidth) {
-                                Bitmap.createScaledBitmap(bitmap, printerWidth, (bitmap.height * printerWidth / bitmap.width), true)
-                            } else {
-                                bitmap
-                            }
-                            mPrinter.setPrintAppendBitmap(scaledBitmap, Layout.Alignment.ALIGN_CENTER)
-                            Log.d("Invoice Printing", "Logo printed successfully: ${scaledBitmap.width}x${scaledBitmap.height}")
-                            bitmap.recycle()
-                            if (scaledBitmap != bitmap) scaledBitmap.recycle()
+                            .invokeMethod("showError", "Attempt $attempt failed to decode logo resource: ${e.message ?: "Unknown error"}")
+                        if (attempt < 3) {
+                            Thread.sleep(500) // Wait 500ms
+                            continue
                         }
+                        MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                            .invokeMethod("showError", "Failed to decode logo resource")
                     }
-                } catch (e: Exception) {
-                    MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
-                        .invokeMethod("showError", "Failed to load or print logo: $imagePath")
                 }
-            } else {
+                if (bitmap == null) {
+                    MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                        .invokeMethod("showError", "Logo bitmap is null")
+                } else {
+                    Log.d("Invoice Printing", "Bitmap decoded: ${bitmap.width}x${bitmap.height}, byteCount: ${bitmap.byteCount}")
+                    // Resize bitmap to fit printer width (384px for 58mm printer)
+                    val printerWidth = 96
+                    val scaledBitmap = if (bitmap.width > printerWidth) {
+                        Bitmap.createScaledBitmap(bitmap, printerWidth, (bitmap.height * printerWidth / bitmap.width), true)
+                    } else {
+                        bitmap
+                    }
+                    mPrinter.setPrintAppendBitmap(scaledBitmap, Layout.Alignment.ALIGN_CENTER)
+//                    MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+//                        .invokeMethod("showError", "Logo loaded successfully: ${scaledBitmap.width}x${scaledBitmap.height}")
+                    Log.d("Invoice Printing", "Logo printed successfully: ${scaledBitmap.width}x${scaledBitmap.height}")
+                    bitmap.recycle()
+                    if (scaledBitmap != bitmap) scaledBitmap.recycle()
+                }
+            } catch (e: Exception) {
                 MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
-                    .invokeMethod("showError", "No imagePath provided in print data")
+                    .invokeMethod("showError", "Failed to load or print logo: ${e.message ?: "Unknown error"}")
             }
 
-            // Store Name
+            // PERFUME WORLD
             format.setTextSize(48) // 2x normal size
             format.setStyle(PrnTextStyle.BOLD)
+            format.setAli(Layout.Alignment.ALIGN_CENTER)
             mPrinter.setPrintAppendString("PERFUME WORLD", format)
 
             // Address
@@ -154,7 +163,8 @@ class MainActivity : FlutterActivity() {
                 "Date & Time: ${SimpleDateFormat("MM/dd/yyyy HH:mm").format(Date())}",
                 format
             )
-            mPrinter.setPrintAppendString("Invoice No.: ${data["invoiceNumber"]}", format)
+            mPrinter.setPrintAppendString("Invoice No.: ${data["invoiceNumber"] ?: "N/A"}", format)
+            // Served by (to be added later)
             mPrinter.setPrintAppendString("Customer Name: ${data["customerName"] ?: "No customer"}", format)
             mPrinter.setPrintAppendString("Customer Mobile: ${data["customerPhone"] ?: ""}", format)
             mPrinter.setPrintAppendString("", format) // Space
@@ -163,42 +173,60 @@ class MainActivity : FlutterActivity() {
             format.setStyle(PrnTextStyle.BOLD)
             mPrinter.setPrintAppendString("------------------------------------", format)
             format.setStyle(PrnTextStyle.NORMAL)
-            mPrinter.setPrintAppendString("Items        Qty    Rate    Amount", format)
+            mPrinter.setPrintAppendString(
+                String.format("%-16s %3s %8s %8s", "Items", "Qty", "Rate", "Amount"),
+                format
+            )
             format.setStyle(PrnTextStyle.BOLD)
             mPrinter.setPrintAppendString("------------------------------------", format)
 
             // Items
             format.setStyle(PrnTextStyle.NORMAL)
-            val items = data["cartItems"] as List<Map<String, Any>>
+            val items = try {
+                data["cartItems"] as List<Map<String, Any>>
+            } catch (e: Exception) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Invalid cartItems data: ${e.message ?: "Unknown error"}")
+                return "data_error"
+            }
             var subTotal = 0.0
-            items.forEach { item ->
-                val name = item["productName"].toString()
-                val qty = item["quantity"].toString().toIntOrNull() ?: 0
-                val price = item["price"].toString().toDoubleOrNull() ?: 0.0
-                val discount = item["discount"].toString().toDoubleOrNull() ?: 0.0
-                val amount = (price * qty - discount)
+            items.forEachIndexed { index, item ->
+                try {
+                    val name = item["productName"].toString()
+                    val qty = item["quantity"].toString().toIntOrNull() ?: 0
+                    val price = item["price"].toString().toDoubleOrNull() ?: 0.0
+                    val discount = item["discount"].toString().toDoubleOrNull() ?: 0.0
+                    val amount = (price * qty - discount)
 
-                // Handle long item names
-                val maxNameLength = 12 // Adjust based on printer width
-                if (name.length > maxNameLength) {
-                    val chunks = name.chunked(maxNameLength)
-                    chunks.forEachIndexed { index, chunk ->
-                        if (index == 0) {
-                            mPrinter.setPrintAppendString(
-                                String.format("%-12s %3d %7.2f %8.2f", chunk, qty, price, amount),
-                                format
-                            )
-                        } else {
-                            mPrinter.setPrintAppendString(chunk, format)
+                    // Handle long item names
+                    val maxNameLength = 16
+                    if (name.length > maxNameLength) {
+                        val chunks = name.chunked(maxNameLength)
+                        chunks.forEachIndexed { chunkIndex, chunk ->
+                            if (chunkIndex == 0) {
+                                mPrinter.setPrintAppendString(
+                                    String.format("%-16s %3d %8.2f %8.2f", chunk, qty, price, amount),
+                                    format
+                                )
+                            } else {
+                                mPrinter.setPrintAppendString(
+                                    String.format("%-16s %3s %8s %8s", chunk, "", "", ""),
+                                    format
+                                )
+                            }
                         }
+                    } else {
+                        mPrinter.setPrintAppendString(
+                            String.format("%-16s %3d %8.2f %8.2f", name, qty, price, amount),
+                            format
+                        )
                     }
-                } else {
-                    mPrinter.setPrintAppendString(
-                        String.format("%-12s %3d %7.2f %8.2f", name, qty, price, amount),
-                        format
-                    )
+                    subTotal += amount
+                } catch (e: Exception) {
+                    MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                        .invokeMethod("showError", "Error processing item at index $index: ${e.message ?: "Unknown error"}")
+                    return "data_error"
                 }
-                subTotal += amount
             }
 
             // Totals
@@ -206,55 +234,79 @@ class MainActivity : FlutterActivity() {
             mPrinter.setPrintAppendString("------------------------------------", format)
             format.setStyle(PrnTextStyle.NORMAL)
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Sub Total", subTotal),
+                String.format("%-20s %8.2f", "Sub Total", subTotal),
                 format
             )
             mPrinter.setPrintAppendString("------------------------------------", format)
 
             // Discounts and VAT
-            val invoiceDiscount = data["invoiceDiscount"]?.toString()?.toDoubleOrNull() ?: 0.0
-            val vat = data["vat"]?.toString()?.toDoubleOrNull() ?: 0.0
-            val shipping = data["shipping"]?.toString()?.toDoubleOrNull() ?: 0.0
+            val invoiceDiscount = try {
+                data["invoiceDiscount"]?.toString()?.toDoubleOrNull() ?: 0.0
+            } catch (e: Exception) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Invalid invoiceDiscount value: ${e.message ?: "Unknown error"}")
+                return "data_error"
+            }
+            val vat = try {
+                data["vat"]?.toString()?.toDoubleOrNull() ?: 0.0
+            } catch (e: Exception) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Invalid vat value: ${e.message ?: "Unknown error"}")
+                return "data_error"
+            }
+            val shipping = try {
+                data["shipping"]?.toString()?.toDoubleOrNull() ?: 0.0
+            } catch (e: Exception) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Invalid shipping value: ${e.message ?: "Unknown error"}")
+                return "data_error"
+            }
             val vatAmount = subTotal * (vat / 100)
             val discountAmount = subTotal * (invoiceDiscount / 100)
             val netAmount = subTotal + vatAmount - discountAmount + shipping
-            val paidAmount = data["collectedAmount"]?.toString()?.toDoubleOrNull() ?: 0.0
+            val paidAmount = try {
+                data["collectedAmount"]?.toString()?.toDoubleOrNull() ?: 0.0
+            } catch (e: Exception) {
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Invalid collectedAmount value: ${e.message ?: "Unknown error"}")
+                return "data_error"
+            }
             val changeAmount = paidAmount - netAmount
 
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Discount", discountAmount),
+                String.format("%-20s %8.2f", "Discount", discountAmount),
                 format
             )
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Return Discount Amount (-)", 0.0),
+                String.format("%-20s %8.2f", "Return Discount Amount (-)", 0.0),
                 format
             )
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Vat 7.5% (Inclusive)", vatAmount),
+                String.format("%-20s %8.2f", "Vat 7.5% (Inclusive)", vatAmount),
                 format
             )
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Special Discount", discountAmount),
+                String.format("%-20s %8.2f", "Special Discount", discountAmount),
                 format
             )
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Redeem 0.000 Point Value", 0.0),
+                String.format("%-20s %8.2f", "Redeem 0.000 Point Value", 0.0),
                 format
             )
             format.setStyle(PrnTextStyle.BOLD)
             mPrinter.setPrintAppendString("------------------------------------", format)
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Net Amount", netAmount),
+                String.format("%-20s %8.2f", "Net Amount", netAmount),
                 format
             )
             mPrinter.setPrintAppendString("------------------------------------", format)
             format.setStyle(PrnTextStyle.NORMAL)
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Paid Amount", paidAmount),
+                String.format("%-20s %8.2f", "Paid Amount", paidAmount),
                 format
             )
             mPrinter.setPrintAppendString(
-                String.format("%-24s %7.2f", "Change Amount", changeAmount),
+                String.format("%-20s %8.2f", "Change Amount", changeAmount),
                 format
             )
             mPrinter.setPrintAppendString("", format) // Space
@@ -264,12 +316,15 @@ class MainActivity : FlutterActivity() {
             mPrinter.setPrintAppendString("Payment Info:", format)
             mPrinter.setPrintAppendString("----------------------", format)
             format.setStyle(PrnTextStyle.NORMAL)
-            mPrinter.setPrintAppendString("Description          Amount", format)
+            mPrinter.setPrintAppendString(
+                String.format("%-20s %8s", "Description", "Amount"),
+                format
+            )
             format.setStyle(PrnTextStyle.BOLD)
             mPrinter.setPrintAppendString("------------------------------------", format)
             format.setStyle(PrnTextStyle.NORMAL)
             mPrinter.setPrintAppendString(
-                String.format("%-20s %7.2f", data["paymentMethodName"]?.toString() ?: "N/A", netAmount),
+                String.format("%-20s %8.2f", data["paymentMethodName"]?.toString() ?: "N/A", netAmount),
                 format
             )
             mPrinter.setPrintAppendString("", format) // Space
@@ -281,12 +336,22 @@ class MainActivity : FlutterActivity() {
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
+            format.setAli(Layout.Alignment.ALIGN_CENTER)
+            mPrinter.setPrintAppendString("Thank You for Shopping with us", format)
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
 
-            val printStatusResult = mPrinter.setPrintStart()
+            // Retry print start up to 2 times
+            var printStatusResult = SdkResult.SDK_ERROR
+            for (attempt in 1..2) {
+                printStatusResult = mPrinter.setPrintStart()
+                if (printStatusResult == SdkResult.SDK_OK) break
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Print attempt $attempt failed: status=$printStatusResult")
+                Thread.sleep(500) // Wait 500ms before retry
+            }
             if (printStatusResult == SdkResult.SDK_OK) {
                 lifecycleScope.launch {
                     delay(500)
@@ -294,10 +359,12 @@ class MainActivity : FlutterActivity() {
                 }
                 return "true"
             }
-            Log.e("Invoice Printing", "Print start failed: $printStatusResult")
+            MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                .invokeMethod("showError", "Print start failed: status=$printStatusResult")
             return "false"
         } catch (e: Exception) {
-            Log.e("Invoice Printing", "Failed to print invoice", e)
+            MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                .invokeMethod("showError", "Failed to print invoice: ${e.message ?: "Unknown error"}")
             return "false"
         }
     }
@@ -308,10 +375,12 @@ class MainActivity : FlutterActivity() {
             if (printStatus == SdkResult.SDK_OK) {
                 mPrinter.openPrnCutter(1.toByte())
             } else {
-                Log.e("Cut Paper", "Printer status not OK: $printStatus")
+                MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                    .invokeMethod("showError", "Printer status not OK for paper cut: $printStatus")
             }
         } catch (e: Exception) {
-            Log.e("Cut Paper", "Failed to cut paper", e)
+            MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, CHANNEL)
+                .invokeMethod("showError", "Failed to cut paper: ${e.message ?: "Unknown error"}")
         }
     }
 

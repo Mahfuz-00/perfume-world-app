@@ -80,20 +80,31 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
           Future.microtask(() async {
             final printState = context.read<InvoicePrintBloc>().state;
             print('Print State before ZCSPosSdk: ${printState.toJson()}');
-            final success = await ZCSPosSdk.printInvoice(context, printState);
-            if (success) {
-              context.read<InvoicePrintBloc>().add(ClearPrintData());
+            try {
+              final success = await ZCSPosSdk.printInvoice(context, printState);
+              if (success) {
+                context.read<InvoicePrintBloc>().add(ClearPrintData());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Printed successfully'),
+                    backgroundColor: AppColors.primary,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              } else {
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text('Failed to print: Unknown error'),
+                //     backgroundColor: Colors.red,
+                //     duration: const Duration(seconds: 3),
+                //   ),
+                // );
+              }
+            } catch (e, stackTrace) {
+              print('Print error: $e\nStackTrace: $stackTrace');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Printed successfully'),
-                  backgroundColor: AppColors.primary,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Failed to print'),
+                  content: Text('Failed to print: $e'),
                   backgroundColor: Colors.red,
                   duration: const Duration(seconds: 3),
                 ),
