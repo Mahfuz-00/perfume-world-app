@@ -121,7 +121,7 @@ class _DashboardState extends State<Dashboard> {
                                     final profile = state.profile;
                                     return Row(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.end,
+                                      CrossAxisAlignment.center,
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         // Name and Designation
@@ -130,19 +130,19 @@ class _DashboardState extends State<Dashboard> {
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 1.0),
-                                            child: Column(
+                                            child: Row(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.end,
+                                              CrossAxisAlignment.center,
                                               mainAxisAlignment:
                                               MainAxisAlignment.end,
                                               children: [
-                                                // Name and Verified Icon
-                                                Row(
+                                                Column(
                                                   crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                                   mainAxisAlignment:
                                                   MainAxisAlignment.end,
                                                   children: [
+                                                    // Name and Verified Icon
                                                     Flexible(
                                                       child: Text(
                                                         profile.name ?? 'N/A',
@@ -157,24 +157,24 @@ class _DashboardState extends State<Dashboard> {
                                                         maxLines: 1,
                                                       ),
                                                     ),
-                                                    SizedBox(width: 8.0),
-                                                    Icon(
-                                                      Icons.verified,
-                                                      color: AppColors.primary,
-                                                      size: screenWidth * 0.015,
+                                                    SizedBox(height: 5),
+                                                    // Designation
+                                                    Text(
+                                                      profile.designation ?? 'N/A',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: AppColors.primary,
+                                                        fontFamily: 'Roboto',
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
-                                                SizedBox(height: 5),
-                                                // Designation
-                                                Text(
-                                                  profile.designation ?? 'N/A',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: AppColors.primary,
-                                                    fontFamily: 'Roboto',
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
+                                                SizedBox(width: 8.0),
+                                                Icon(
+                                                  Icons.verified,
+                                                  color: AppColors.primary,
+                                                  size: screenWidth * 0.015,
                                                 ),
                                               ],
                                             ),
@@ -314,81 +314,79 @@ class _DashboardState extends State<Dashboard> {
                     Expanded(
                       child: Container(
                         color: AppColors.backgroundWhite.withOpacity(0.8),
-                        child: Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              print('Available height: ${constraints.maxHeight}');
-                              return BlocBuilder<DashboardBloc, DashboardState>(
-                                builder: (context, state) {
-                                  if (state is DashboardLoadingState) {
-                                    return Center(child: CircularProgressIndicator());
-                                  } else if (state is DashboardErrorState) {
-                                    print('Dashboard Error: ${state.message}');
-                                    return Center(child: Text('Error: ${state.message}'));
-                                  }
-                                  final List<ProductEntity> products = state is DashboardLoadedState
-                                      ? state.dashboardData
-                                      : [];
-                                  return Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Left Part: Product Search and List
-                                      Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            print('Available height: ${constraints.maxHeight}');
+                            return BlocBuilder<DashboardBloc, DashboardState>(
+                              builder: (context, state) {
+                                if (state is DashboardLoadingState) {
+                                  return Center(child: CircularProgressIndicator());
+                                } else if (state is DashboardErrorState) {
+                                  print('Dashboard Error: ${state.message}');
+                                  return Center(child: Text('Error: ${state.message}'));
+                                }
+                                final List<ProductEntity> products = state is DashboardLoadedState
+                                    ? state.dashboardData
+                                    : [];
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Left Part: Product Search and List
+                                    Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+
+                                            // SizedBox(height: 16),
+                                            Expanded(
+                                              child: SingleChildScrollView(child: ProductList(products: products)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // Right Part: Customer Search, Invoice Table, Inputs
+                                    Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 8.0, right: 8, top: 16, bottom: 8),
+                                        child: SingleChildScrollView(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                        
-                                              // SizedBox(height: 16),
-                                              Expanded(
-                                                child: SingleChildScrollView(child: ProductList(products: products)),
+                                              CustomerSearchWidget(
+                                                onCustomerSelected: (customer) {
+                                                  setState(() {
+                                                    _selectedCustomer = customer;
+                                                    print('Selected: $customer');
+                                                  });
+                                                },
                                               ),
+                                              SizedBox(height: 8),
+                                              InvoiceTableWidget(
+                                                onDiscountChanged: (item, discount) {
+                                                  setState(() {
+                                                    _itemDiscounts[item] = discount;
+                                                  });
+                                                },
+                                                itemDiscounts: _itemDiscounts,
+                                                selectedCustomer: _selectedCustomer,
+                                              ),
+                                              SizedBox(height: 16),
+                                              // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),
                                             ],
                                           ),
                                         ),
                                       ),
-                                      // Right Part: Customer Search, Invoice Table, Inputs
-                                      Expanded(
-                                        flex: 1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                CustomerSearchWidget(
-                                                  onCustomerSelected: (customer) {
-                                                    setState(() {
-                                                      _selectedCustomer = customer;
-                                                      print('Selected: $customer');
-                                                    });
-                                                  },
-                                                ),
-                                                SizedBox(height: 16),
-                                                InvoiceTableWidget(
-                                                  onDiscountChanged: (item, discount) {
-                                                    setState(() {
-                                                      _itemDiscounts[item] = discount;
-                                                    });
-                                                  },
-                                                  itemDiscounts: _itemDiscounts,
-                                                  selectedCustomer: _selectedCustomer,
-                                                ),
-                                                SizedBox(height: 16),
-                                                // InvoiceInputsWidget(itemDiscounts: _itemDiscounts),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
                     ),

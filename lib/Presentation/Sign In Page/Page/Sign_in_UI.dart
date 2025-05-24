@@ -279,7 +279,7 @@ class _SignInPageState extends State<SignInPage> {
           builder: (context, state) {
             if (state is SignInLoading) {
               // Show loading spinner when the state is loading
-              return Center(child: OverlayLoader());
+              return Center(child: CircularProgressIndicator());
             }
             return Container(
               padding: EdgeInsets.only(

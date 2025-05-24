@@ -40,10 +40,11 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   }
 
 
-  void _onClearCustomer(ClearCustomerEvent event, Emitter<CustomerState> emit) {
+  Future<void> _onClearCustomer(ClearCustomerEvent event, Emitter<CustomerState> emit) async {
     print('Clearing CustomerBloc state');
-    emit(CustomerInitial());
     emit(CustomerCleared());
+    final customers = await getCustomers();
+    emit(CustomerLoaded(customers as List<Customer>));
   }
 
 }
