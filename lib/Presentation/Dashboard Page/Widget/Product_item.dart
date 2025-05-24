@@ -44,7 +44,8 @@ class ProductItem extends StatelessWidget {
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end, // Align content to bottom
+            crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
             children: [
               // Image.asset(
               //   AppImages.ActivityIcon,

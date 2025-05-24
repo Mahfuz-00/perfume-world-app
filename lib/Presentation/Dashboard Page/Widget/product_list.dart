@@ -22,6 +22,8 @@ class _ProductListState extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final availableWidth = screenWidth - 24;
+    final itemWidth = (availableWidth - 12) / 2;
     final filteredProducts = widget.products.where((product) {
       final nameMatch = product.name.toLowerCase().contains(nameQuery.toLowerCase());
       final serialMatch = product.code.toLowerCase().contains(serialQuery.toLowerCase());
@@ -58,20 +60,29 @@ class _ProductListState extends State<ProductList> {
           ),
           SizedBox(height: 8),
           filteredProducts.isEmpty
-              ? Center(child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Text('No products available'),
-              ))
-              : Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            alignment: WrapAlignment.start,
-            children: filteredProducts.map((product) {
-              return ProductItem(
-                product: product,
-                width: (screenWidth - 48) / 4.2,
-              );
-            }).toList(),
+              ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text('No products available'),
+            ),
+          )
+              : SizedBox(
+            height: MediaQuery.of(context).size.height - 50, // Adjust based on available space
+            child: GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.4, // Adjust for desired height (width/height ratio)
+              children: filteredProducts.map((product) {
+                return SizedBox(
+                  width: itemWidth,
+                  child: ProductItem(
+                    product: product,
+                    width: itemWidth,
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),

@@ -138,7 +138,7 @@ class _DashboardState extends State<Dashboard> {
                                               children: [
                                                 Column(
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                                  CrossAxisAlignment.end,
                                                   mainAxisAlignment:
                                                   MainAxisAlignment.end,
                                                   children: [
@@ -171,10 +171,20 @@ class _DashboardState extends State<Dashboard> {
                                                   ],
                                                 ),
                                                 SizedBox(width: 8.0),
-                                                Icon(
-                                                  Icons.verified,
-                                                  color: AppColors.primary,
-                                                  size: screenWidth * 0.015,
+                                                Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.verified,
+                                                      color: AppColors.primary,
+                                                      size: screenWidth * 0.015,
+                                                    ),
+                                                    SizedBox(height: 5),
+                                                    Text(''),
+                                                  ],
                                                 ),
                                               ],
                                             ),
