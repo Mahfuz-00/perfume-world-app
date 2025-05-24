@@ -89,7 +89,7 @@ class MainActivity : FlutterActivity() {
                 return "printer_error"
             }
             val format = PrnStrFormat()
-            format.setTextSize(24) // Normal font size
+            format.setTextSize(16) // Normal font size
             format.setStyle(PrnTextStyle.NORMAL)
             format.setFont(PrnTextFont.DEFAULT)
 
@@ -144,7 +144,7 @@ class MainActivity : FlutterActivity() {
             }
 
             // PERFUME WORLD
-            format.setTextSize(48) // 2x normal size
+            format.setTextSize(32) // 2x normal size
             format.setStyle(PrnTextStyle.BOLD)
             format.setAli(Layout.Alignment.ALIGN_CENTER)
             mPrinter.setPrintAppendString("PERFUME WORLD", format)
