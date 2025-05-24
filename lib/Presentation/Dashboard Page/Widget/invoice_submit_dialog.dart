@@ -247,7 +247,7 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                       },
                     ),
                   ),
-                  if (_selectedPaymentMethodSlug == 'bank') ...[
+                  if (_selectedPaymentMethodSlug != null && _selectedPaymentMethodSlug!.contains('bank')) ...[
                     const SizedBox(height: 8),
                     SizedBox(
                       width: screenWidth * 0.6,
@@ -332,7 +332,37 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: () {
-                          if (_selectedPaymentMethodSlug != null && _collectedAmountController.text.isNotEmpty) {
+                          if(_selectedPaymentMethodSlug == null){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Payment Method is not Selected'),
+                                backgroundColor: Colors.red,
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                            return;
+                          } else if(_collectedAmountController.text.isEmpty){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please enter collected Amount'),
+                                backgroundColor: Colors.red,
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                            return;
+                          } else if (_selectedPaymentMethodSlug != null && _selectedPaymentMethodSlug!.contains('bank') && _collectedAmountController.text.isNotEmpty) {
+                            if (_selectedPaymentMethodSlug == 'bank' && (_checkNoController.text.isEmpty || _checkDate == null)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please enter bank cheque details properly'),
+                                backgroundColor: Colors.red,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                            return;
+                          }
+
+
                             final collection = Collection(
                               customerId: widget.customer?.id.toString(),
                               prevDues: widget.customer?.previousDue.toString() ?? '0',

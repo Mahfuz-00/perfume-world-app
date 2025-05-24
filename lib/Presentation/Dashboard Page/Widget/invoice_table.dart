@@ -264,31 +264,60 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        final invoiceNumber = _generateInvoiceNumber();
-                        final invoice = Invoice(
-                          invoiceNo: invoiceNumber,
-                          type: '1',
-                          vat: _vatController.text,
-                          items: cartItems
-                              .map((item) => InvoiceItem(
-                            customerId: widget.selectedCustomer?.id.toString(),
-                            productId: item.product.id,
-                            productName: item.product.name,
-                            quantity: item.quantity.toString(),
-                            serials: item.product.code.toString(),
-                            price: item.product.price,
-                            discount: widget.itemDiscounts[item]?.toString() ?? '0',
-                            invDiscount: _invoiceDiscountController.text,
-                            address: null,
-                            description: null,
-                            termsAndConditions: null,
-                            totalPrice: ((double.tryParse(item.product.price) ?? 0) * item.quantity - (widget.itemDiscounts[item] ?? 0)).toString(),
-                            costUnitPrice: item.product.price,
-                          ))
-                              .toList(),
-                        );
-                        context.read<InvoiceBloc>().add(SubmitInvoiceEvent(invoice));
-                      },
+                        if (widget.selectedCustomer == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Please select a customer'),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                          return;
+                        }
+                        else if (cartItems.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Cart is empty'),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                          return;
+                        } else {
+                          final invoiceNumber = _generateInvoiceNumber();
+                          final invoice = Invoice(
+                            invoiceNo: invoiceNumber,
+                            type: '1',
+                            vat: _vatController.text,
+                            items: cartItems
+                                .map((item) =>
+                                InvoiceItem(
+                                  customerId: widget.selectedCustomer?.id
+                                      .toString(),
+                                  productId: item.product.id,
+                                  productName: item.product.name,
+                                  quantity: item.quantity.toString(),
+                                  serials: item.product.code.toString(),
+                                  price: item.product.price,
+                                  discount: widget.itemDiscounts[item]
+                                      ?.toString() ?? '0',
+                                  invDiscount: _invoiceDiscountController.text,
+                                  address: null,
+                                  description: null,
+                                  termsAndConditions: null,
+                                  totalPrice: ((double.tryParse(
+                                      item.product.price) ?? 0) *
+                                      item.quantity -
+                                      (widget.itemDiscounts[item] ?? 0))
+                                      .toString(),
+                                  costUnitPrice: item.product.price,
+                                ))
+                                .toList(),
+                          );
+                          context.read<InvoiceBloc>().add(
+                              SubmitInvoiceEvent(invoice));
+                          }
+                        },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
