@@ -24,6 +24,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
   String? _lastAddedPhone; // Store phone of last added customer
   int _retryCount = 0; // Limit retries
   bool cleared = false;
+  final FocusNode _searchFocusNode = FocusNode();
 
   void clearCustomerTemporarily() {
     setState(() {
@@ -77,6 +78,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
           // Clear search, show SnackBar, wait for CustomerLoaded
           setState(() {
             _searchController.clear();
+            _searchFocusNode.unfocus();
             _retryCount = 0; // Reset retries
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -109,6 +111,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
               _selectedCustomer = selectedCustomer;
               _lastAddedName = null;
               _lastAddedPhone = null;
+              _searchFocusNode.unfocus();
               _retryCount = 0;
             });
             widget.onCustomerSelected(selectedCustomer);
@@ -139,6 +142,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
             _filteredCustomers = [];
             _searchController.clear();
             _selectedCustomer = null;
+            _searchFocusNode.unfocus();
           });
         }
       },
@@ -160,26 +164,39 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search by Name or Phone',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      suffixIcon: state is CustomerLoading
-                          ? Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.primary,
-                          ),
+                  child: Container(
+                    height: 48,
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      decoration: InputDecoration(
+                        hintText: 'Search by Name or Phone',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: AppColors.primary),
                         ),
-                      )
-                          : Icon(Icons.search, color: AppColors.textAsh),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: AppColors.primary),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: AppColors.primary),
+                        ),
+                        suffixIcon: state is CustomerLoading
+                            ? Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        )
+                            : Icon(Icons.search, color: AppColors.textAsh),
+                      ),
                     ),
                   ),
                 ),
@@ -189,6 +206,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
+                      isScrollControlled: true,
                       builder: (context) => AddCustomerBottomSheet(
                         onAddCustomer: (name, phone) {
                           setState(() {
@@ -233,6 +251,7 @@ class _CustomerSearchWidgetState extends State<CustomerSearchWidget> {
                         setState(() {
                           _selectedCustomer = customer;
                           _searchController.text = '';
+                          _searchFocusNode.unfocus();
                         });
                         widget.onCustomerSelected(customer);
                       },

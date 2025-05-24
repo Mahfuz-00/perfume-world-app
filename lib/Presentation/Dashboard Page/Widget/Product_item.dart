@@ -39,7 +39,7 @@ class ProductItem extends StatelessWidget {
               ),
             ],
             border: Border.all(
-              color: AppColors.textAsh.withOpacity(0.3),
+              color: AppColors.primary,
               width: 1,
             ),
           ),

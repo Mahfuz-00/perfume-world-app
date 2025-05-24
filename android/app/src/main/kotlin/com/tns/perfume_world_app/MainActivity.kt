@@ -89,7 +89,7 @@ class MainActivity : FlutterActivity() {
                 return "printer_error"
             }
             val format = PrnStrFormat()
-            format.setTextSize(16) // Normal font size
+            format.setTextSize(24) // Normal font size
             format.setStyle(PrnTextStyle.NORMAL)
             format.setFont(PrnTextFont.DEFAULT)
 
@@ -331,7 +331,7 @@ class MainActivity : FlutterActivity() {
 
             // Taka in Words
             val takaInWords = numberToWords(netAmount.toLong())
-            mPrinter.setPrintAppendString("Taka in Word: TK. $takaInWords", format)
+            mPrinter.setPrintAppendString("Taka in Word: $takaInWords Taka Only", format)
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space
             mPrinter.setPrintAppendString("", format) // Space

@@ -123,8 +123,15 @@ class _ProductSearchState extends State<ProductSearch> {
                   hintStyle: TextStyle(fontSize: 12, color: AppColors.textAsh),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                    BorderSide(color: AppColors.textAsh.withOpacity(0.3)),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                   EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -142,8 +149,15 @@ class _ProductSearchState extends State<ProductSearch> {
                   hintStyle: TextStyle(fontSize: 12, color: AppColors.textAsh),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                    BorderSide(color: AppColors.textAsh.withOpacity(0.3)),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                   contentPadding:
                   EdgeInsets.symmetric(horizontal: 12, vertical: 8),

@@ -36,12 +36,15 @@ class InvoiceSubmitDialog extends StatefulWidget {
 class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
   String? _selectedPaymentMethodSlug;
   String? _selectedPaymentMethodName;
+  String? _selectedPaymentMethodType;
   final TextEditingController _collectedAmountController = TextEditingController();
   final TextEditingController _checkNoController = TextEditingController();
   final TextEditingController _refNoController = TextEditingController();
   final TextEditingController _remarkController = TextEditingController();
   final TextEditingController _cashMemoController = TextEditingController();
   DateTime _checkDate = DateTime.now();
+  bool _isPaymentMethodInitialized = false;
+
 
   @override
   void dispose() {
@@ -182,19 +185,19 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: screenWidth * 0.6,
-                    child: TextField(
-                      controller: _cashMemoController,
-                      decoration: InputDecoration(
-                        labelText: 'Cash Memo No.',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        isDense: true,
-                      ),
-                      style: const TextStyle(fontSize: 14, fontFamily: 'Roboto'),
-                    ),
-                  ),
+                  // const SizedBox(height: 8),
+                  // SizedBox(
+                  //   width: screenWidth * 0.6,
+                  //   child: TextField(
+                  //     controller: _cashMemoController,
+                  //     decoration: InputDecoration(
+                  //       labelText: 'Cash Memo No.',
+                  //       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  //       isDense: true,
+                  //     ),
+                  //     style: const TextStyle(fontSize: 14, fontFamily: 'Roboto'),
+                  //   ),
+                  // ),
                   const SizedBox(height: 8),
                   SizedBox(
                     width: screenWidth * 0.6,
@@ -217,6 +220,22 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                         if (state is PaymentMethodLoading) {
                           return const Center(child: CircularProgressIndicator());
                         } else if (state is PaymentMethodLoaded) {
+                          // Set default payment method (cash) only once
+                          if (!_isPaymentMethodInitialized) {
+                            final cashMethod = state.paymentMethods.firstWhere(
+                                  (method) => method.type == 'cash',
+                              // orElse: () => state.paymentMethods.isNotEmpty ? state.paymentMethods.first : null,
+                            );
+                            if (cashMethod != null && cashMethod.type == 'cash') {
+                              _selectedPaymentMethodSlug = cashMethod.slug;
+                              _selectedPaymentMethodName = cashMethod.name;
+                              _selectedPaymentMethodType = cashMethod.type;
+                              print('Default selected: slug=${cashMethod.slug}, name=${cashMethod.name}, type=${cashMethod.type}');
+                            }
+                            _isPaymentMethodInitialized = true;
+                          }
+
+
                           return DropdownButtonFormField<String>(
                             decoration: InputDecoration(
                               labelText: 'Payment Method',
@@ -235,6 +254,9 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                                 _selectedPaymentMethodName = state.paymentMethods
                                     .firstWhere((method) => method.slug == value)
                                     .name;
+                                _selectedPaymentMethodType = state.paymentMethods
+                                    .firstWhere((method) => method.slug == value)
+                                    .type;
                                 print('Selected: slug=$value, name=$_selectedPaymentMethodName');
                               });
                             },
@@ -247,7 +269,7 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                       },
                     ),
                   ),
-                  if (_selectedPaymentMethodSlug != null && _selectedPaymentMethodSlug!.contains('bank')) ...[
+                  if (_selectedPaymentMethodType == 'bank') ...[
                     const SizedBox(height: 8),
                     SizedBox(
                       width: screenWidth * 0.6,
@@ -350,8 +372,8 @@ class _InvoiceSubmitDialogState extends State<InvoiceSubmitDialog> {
                               ),
                             );
                             return;
-                          } else if (_selectedPaymentMethodSlug != null && _selectedPaymentMethodSlug!.contains('bank') && _collectedAmountController.text.isNotEmpty) {
-                            if (_selectedPaymentMethodSlug == 'bank' && (_checkNoController.text.isEmpty || _checkDate == null)) {
+                          } else if (_selectedPaymentMethodSlug != null && _collectedAmountController.text.isNotEmpty) {
+                            if (_selectedPaymentMethodType == 'bank' && (_checkNoController.text.isEmpty || _checkDate == null)) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Please enter bank cheque details properly'),
