@@ -18,9 +18,11 @@ class PaymentMethodBloc extends Bloc<PaymentMethodEvent, PaymentMethodState> {
         emit(PaymentMethodError(e.toString()));
       }
     });
-    on<ClearPaymentMethodEvent>((event, emit) {
+    on<ClearPaymentMethodEvent>((event, emit) async {
       print('Clearing PaymentMethodBloc state');
       emit(PaymentMethodInitial());
+      final paymentMethods = await getPaymentMethods();
+      emit(PaymentMethodLoaded(paymentMethods));
     });
   }
 }
