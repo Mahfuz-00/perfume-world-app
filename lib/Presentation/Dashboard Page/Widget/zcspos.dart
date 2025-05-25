@@ -53,6 +53,10 @@ class ZCSPosSdk {
     context.read<InvoicePrintBloc>().add(ClearPrintData());
     context.read<PaymentMethodBloc>().add(ClearPaymentMethodEvent());
 
+    context.read<CustomerBloc>().add(ClearCustomerEvent());
+    context.read<InvoicePrintBloc>().add(ClearPrintData());
+    context.read<PaymentMethodBloc>().add(ClearPaymentMethodEvent());
+
     try {
       print('State sending data for printing: ${state.toJson()}');
       final result = await _channel.invokeMethod('printInvoice', state.toJson());
