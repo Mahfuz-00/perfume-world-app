@@ -35,28 +35,31 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  connectivity:
-  local_auth:
-  fluttertoast:
+  fluttertoast: ^8.2.0
   intl:
-  file_picker:
+  file_picker: ^10.3.3
   flutter_bloc:
   bloc:
   equatable:
-  sqflite:
   get_it:
   gif:
   image:
   path_provider:
-  shared_preferences:
+  shared_preferences: ^2.3.1
   dartz:
   http:
-  sqflite_sqlcipher:
   cached_network_image:
   mime:
   http_parser:
   rename_app:
   flutter_launcher_icons:
+  connectivity_plus:
+  sqflite: ^2.4.2
+
+dependency_overrides:
+  fluttertoast: 8.2.10
+  path_provider: 2.1.5
+  path_provider_android: 2.2.18
 
 dev_dependencies:
   flutter_test:

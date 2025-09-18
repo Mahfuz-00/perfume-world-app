@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../../Core/Config/Theme/app_colors.dart';
 
@@ -10,10 +10,12 @@ import '../../Core/Config/Theme/app_colors.dart';
 class InternetConnectionChecker extends StatefulWidget {
   final Widget child;
 
-  const InternetConnectionChecker({Key? key, required this.child}) : super(key: key);
+  const InternetConnectionChecker({Key? key, required this.child})
+      : super(key: key);
 
   @override
-  _InternetConnectionCheckerState createState() => _InternetConnectionCheckerState();
+  _InternetConnectionCheckerState createState() =>
+      _InternetConnectionCheckerState();
 }
 
 class _InternetConnectionCheckerState extends State<InternetConnectionChecker> {
@@ -26,17 +28,18 @@ class _InternetConnectionCheckerState extends State<InternetConnectionChecker> {
     _connectivity = Connectivity();
     _isConnected = true; // Assume initially connected
     _initConnectivity();
-    _connectivity.onConnectivityChanged.listen((result) {
+    // Listen to connectivity changes
+    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) {
       setState(() {
-        _isConnected = (result != ConnectivityResult.none);
+        _isConnected = !results.contains(ConnectivityResult.none);
       });
     });
   }
 
   Future<void> _initConnectivity() async {
-    final result = await _connectivity.checkConnectivity();
+    final results = await _connectivity.checkConnectivity();
     setState(() {
-      _isConnected = (result != ConnectivityResult.none);
+      _isConnected = !results.contains(ConnectivityResult.none);
     });
   }
 
@@ -53,9 +56,9 @@ class _InternetConnectionCheckerState extends State<InternetConnectionChecker> {
                 'Internet connection not found',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textBlack,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textBlack,
                 ),
               ),
               SizedBox(height: 20),
@@ -67,14 +70,14 @@ class _InternetConnectionCheckerState extends State<InternetConnectionChecker> {
                     borderRadius: BorderRadius.circular(10),
                     side: BorderSide(color: AppColors.textBlack, width: 1),
                   ),
-                  //elevation: 3,
                   fixedSize: const Size(150, 30),
                 ),
-                child: Text('Retry',
+                child: Text(
+                  'Retry',
                   style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textWhite,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textWhite,
                   ),
                 ),
               ),

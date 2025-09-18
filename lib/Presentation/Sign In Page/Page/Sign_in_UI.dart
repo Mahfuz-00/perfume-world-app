@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:local_auth/local_auth.dart';
+// import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Common/Helper/dimmed_overlay.dart';
 import '../../../Common/Widgets/internet_connection_check.dart';
@@ -24,7 +24,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   late TextEditingController _emailcontroller = TextEditingController();
   late TextEditingController _passwordController = TextEditingController();
-  final LocalAuthentication _localAuth = LocalAuthentication();
+  // final LocalAuthentication _localAuth = LocalAuthentication();
   bool _isObscured = true;
   bool isChecked = false;
   bool _isEmployeeID = false;
@@ -92,167 +92,167 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  Future<void> _authenticate() async {
-    bool authenticated = false;
-
-    try {
-      // Check if biometric authentication is available
-      final isAvailable = await _localAuth.canCheckBiometrics;
-      if (!isAvailable) {
-        setState(() {
-          _errorMessage = "Biometric authentication is not available.";
-        });
-
-        /* Fluttertoast.showToast(
-          msg: "Biometric authentication is not available.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          // Show at the top
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );*/
-      }
-      if (isAvailable) {
-        /*
-        Fluttertoast.showToast(
-          msg: "Biometric authentication is available.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          // Show at the top
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );*/
-      }
-
-      // Attempt to authenticate with biometrics (fingerprint or face)
-      authenticated = await _localAuth.authenticate(
-        localizedReason: 'Please authenticate to proceed',
-        // Reason for authentication
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          useErrorDialogs: true, // Show error dialogs if authentication fails
-          stickyAuth: true, // Keep authentication session alive
-        ),
-      );
-
-      setState(() {
-        _isAuthenticated = authenticated;
-        if (!authenticated) {
-          _errorMessage = "Authentication failed!";
-        } else {
-          _errorMessage = '';
-        }
-      });
-
-      if (authenticated) {
-        // Successfully authenticated
-        Fluttertoast.showToast(
-          msg: "Authentication Successful!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          // Show at the top
-          backgroundColor: AppColors.primary,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-
-        // If no token, check if "Remember Me" is checked in SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? savedEmail = prefs.getString('savedEmail');
-        String? savedPassword = prefs.getString('savedPassword');
-        String? isCheckedString = prefs.getString('rememberMe');
-
-        if (isCheckedString == 'true') {
-          isChecked = true;
-        } else {
-          isChecked = false;
-        }
-
-        print('Email: ${savedEmail}');
-        print('Password: ${savedPassword}');
-
-        print("Remember Me in biometric: $isChecked");
-
-        if (isChecked) {
-          // If "Remember Me" is checked, retrieve saved email and password
-          String? savedEmail = await SharedPreferences.getInstance()
-              .then((prefs) => prefs.getString('savedEmail'));
-          String? savedPassword = await SharedPreferences.getInstance()
-              .then((prefs) => prefs.getString('savedPassword'));
-
-          print('Email: ${savedEmail}');
-          print('Password: ${savedPassword}');
-          print('RememberMe: $isChecked');
-          // Trigger the sign-in event
-          BlocProvider.of<SignInBloc>(context).add(
-            PerformSignInEvent(
-              username: savedEmail!,
-              password: savedPassword!,
-              rememberMe: isChecked,
-            ),
-          );
-
-          // After successful authentication, check for the token.
-          final repository = SigninRepositoryImpl();
-          String? token = await repository.getToken();
-
-          if (token != null && token.isNotEmpty) {
-            Fluttertoast.showToast(
-              msg: "Authentication Successful!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP,
-              backgroundColor: AppColors.primary,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-            // Navigate to Dashboard if the token exists.
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Dashboard()),
-            );
-          }
-        } else {
-          // Token is needed; inform the user and optionally fall back to manual sign-in.
-          Fluttertoast.showToast(
-            msg:
-            "No valid token found. Please sign in using email and password. and check remember me for biometric login",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-        }
-      } else {
-        // Authentication failed
-        Fluttertoast.showToast(
-          msg: "Authentication failed!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          // Show at the top
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = "Error during authentication: $e";
-      });
-      print('Error Messeage during biometric authentication: $e');
-      Fluttertoast.showToast(
-        msg: "Error during authentication: $e",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        // Show at the top
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    }
-  }
+  // Future<void> _authenticate() async {
+  //   bool authenticated = false;
+  //
+  //   try {
+  //     // Check if biometric authentication is available
+  //     final isAvailable = await _localAuth.canCheckBiometrics;
+  //     if (!isAvailable) {
+  //       setState(() {
+  //         _errorMessage = "Biometric authentication is not available.";
+  //       });
+  //
+  //       /* Fluttertoast.showToast(
+  //         msg: "Biometric authentication is not available.",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         // Show at the top
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );*/
+  //     }
+  //     if (isAvailable) {
+  //       /*
+  //       Fluttertoast.showToast(
+  //         msg: "Biometric authentication is available.",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         // Show at the top
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );*/
+  //     }
+  //
+  //     // Attempt to authenticate with biometrics (fingerprint or face)
+  //     authenticated = await _localAuth.authenticate(
+  //       localizedReason: 'Please authenticate to proceed',
+  //       // Reason for authentication
+  //       options: const AuthenticationOptions(
+  //         biometricOnly: true,
+  //         useErrorDialogs: true, // Show error dialogs if authentication fails
+  //         stickyAuth: true, // Keep authentication session alive
+  //       ),
+  //     );
+  //
+  //     setState(() {
+  //       _isAuthenticated = authenticated;
+  //       if (!authenticated) {
+  //         _errorMessage = "Authentication failed!";
+  //       } else {
+  //         _errorMessage = '';
+  //       }
+  //     });
+  //
+  //     if (authenticated) {
+  //       // Successfully authenticated
+  //       Fluttertoast.showToast(
+  //         msg: "Authentication Successful!",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         // Show at the top
+  //         backgroundColor: AppColors.primary,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );
+  //
+  //       // If no token, check if "Remember Me" is checked in SharedPreferences
+  //       SharedPreferences prefs = await SharedPreferences.getInstance();
+  //       String? savedEmail = prefs.getString('savedEmail');
+  //       String? savedPassword = prefs.getString('savedPassword');
+  //       String? isCheckedString = prefs.getString('rememberMe');
+  //
+  //       if (isCheckedString == 'true') {
+  //         isChecked = true;
+  //       } else {
+  //         isChecked = false;
+  //       }
+  //
+  //       print('Email: ${savedEmail}');
+  //       print('Password: ${savedPassword}');
+  //
+  //       print("Remember Me in biometric: $isChecked");
+  //
+  //       if (isChecked) {
+  //         // If "Remember Me" is checked, retrieve saved email and password
+  //         String? savedEmail = await SharedPreferences.getInstance()
+  //             .then((prefs) => prefs.getString('savedEmail'));
+  //         String? savedPassword = await SharedPreferences.getInstance()
+  //             .then((prefs) => prefs.getString('savedPassword'));
+  //
+  //         print('Email: ${savedEmail}');
+  //         print('Password: ${savedPassword}');
+  //         print('RememberMe: $isChecked');
+  //         // Trigger the sign-in event
+  //         BlocProvider.of<SignInBloc>(context).add(
+  //           PerformSignInEvent(
+  //             username: savedEmail!,
+  //             password: savedPassword!,
+  //             rememberMe: isChecked,
+  //           ),
+  //         );
+  //
+  //         // After successful authentication, check for the token.
+  //         final repository = SigninRepositoryImpl();
+  //         String? token = await repository.getToken();
+  //
+  //         if (token != null && token.isNotEmpty) {
+  //           Fluttertoast.showToast(
+  //             msg: "Authentication Successful!",
+  //             toastLength: Toast.LENGTH_SHORT,
+  //             gravity: ToastGravity.TOP,
+  //             backgroundColor: AppColors.primary,
+  //             textColor: Colors.white,
+  //             fontSize: 16.0,
+  //           );
+  //           // Navigate to Dashboard if the token exists.
+  //           Navigator.pushReplacement(
+  //             context,
+  //             MaterialPageRoute(builder: (context) => Dashboard()),
+  //           );
+  //         }
+  //       } else {
+  //         // Token is needed; inform the user and optionally fall back to manual sign-in.
+  //         Fluttertoast.showToast(
+  //           msg:
+  //           "No valid token found. Please sign in using email and password. and check remember me for biometric login",
+  //           toastLength: Toast.LENGTH_SHORT,
+  //           gravity: ToastGravity.TOP,
+  //           backgroundColor: Colors.red,
+  //           textColor: Colors.white,
+  //           fontSize: 16.0,
+  //         );
+  //       }
+  //     } else {
+  //       // Authentication failed
+  //       Fluttertoast.showToast(
+  //         msg: "Authentication failed!",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.TOP,
+  //         // Show at the top
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = "Error during authentication: $e";
+  //     });
+  //     print('Error Messeage during biometric authentication: $e');
+  //     Fluttertoast.showToast(
+  //       msg: "Error during authentication: $e",
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.TOP,
+  //       // Show at the top
+  //       backgroundColor: Colors.red,
+  //       textColor: Colors.white,
+  //       fontSize: 16.0,
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

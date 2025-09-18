@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  local_auth_windows
+  connectivity_plus
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
