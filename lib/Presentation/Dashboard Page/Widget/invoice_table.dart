@@ -36,6 +36,7 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
   final TextEditingController _shippingController = TextEditingController(text: '0');
   final FocusNode _invoiceDiscountFocusNode = FocusNode();
   final FocusNode _shippingFocusNode = FocusNode();
+  bool _includeVat = false;
 
   @override
   void initState() {
@@ -68,15 +69,23 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
     double subtotal = 0;
     for (var item in cartItems) {
       final unitPrice = double.tryParse(item.product.price) ?? 0;
-      final itemDiscount = widget.itemDiscounts[item] ?? 0;
+      final itemDiscountPercent = widget.itemDiscounts[item] ?? 0;
+      // final itemDiscount = widget.itemDiscounts[item] ?? 0;
+      final itemDiscount = (unitPrice * item.quantity) * (itemDiscountPercent / 100);
       subtotal += (unitPrice * item.quantity) - itemDiscount;
     }
-    final vat = double.tryParse(_vatController.text) ?? 0;
+    double itemTotal = subtotal;
+    double vatAmount = 0;
+    if (!_includeVat) {
+      final vat = double.tryParse(_vatController.text) ?? 0;
+      vatAmount = itemTotal * (vat / 100);
+      itemTotal += vatAmount;
+    }
+    double total = itemTotal;
     final invoiceDiscount = double.tryParse(_invoiceDiscountController.text) ?? 0;
+    // total -= total * (invoiceDiscount / 100);
+    total -= invoiceDiscount;
     final shipping = double.tryParse(_shippingController.text) ?? 0;
-    double total = subtotal;
-    total += total * (vat / 100);
-    total -= total * (invoiceDiscount / 100);
     total += shipping;
     return total;
   }
@@ -109,7 +118,8 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                   invoiceNumber: invoiceNumber,
                   cartItems: cartItems,
                   itemDiscounts: widget.itemDiscounts,
-                  vat: '0',
+                  // vat: '0',
+                  vat: _includeVat ? _vatController.text : '0',
                   invoiceDiscount: _invoiceDiscountController.text,
                   shipping: _shippingController.text,
                 ));
@@ -205,7 +215,7 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                                 fontWeight: FontWeight.w600,
                                                 color: Colors.black))),
                                     DataColumn(
-                                        label: Text('Discount(৳)',
+                                        label: Text('Discount(%)',
                                             style: TextStyle(
                                                 fontFamily: 'Roboto',
                                                 fontWeight: FontWeight.w600,
@@ -254,7 +264,9 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                       _discountControllers[product.code] = TextEditingController(text: '0');
                                     }
                                     final discountController = _discountControllers[product.code]!;
-                                    final discount = double.tryParse(discountController.text) ?? 0;
+                                    // final discount = double.tryParse(discountController.text) ?? 0;
+                                    final discountPercent = double.tryParse(discountController.text) ?? 0; // Discount as percentage
+                                    final discount = (unitPrice * item.quantity) * (discountPercent / 100);
                                     final total = (unitPrice * item.quantity) - discount;
                                     return DataRow(cells: [
                                       DataCell(Container(
@@ -359,7 +371,86 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                         Container(
                                           width: tableWidth * 0.4,
                                           child: Text(
-                                            'Invoice Discount (%)',
+                                            'VAT Option',
+                                            style: TextStyle(fontSize: 14, fontFamily: 'Roboto', color: Colors.black),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Radio<bool>(
+                                                    value: false,
+                                                    groupValue: _includeVat,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        _includeVat = value!;
+                                                      });
+                                                    },
+                                                  ),
+                                                  Text('Include VAT', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Radio<bool>(
+                                                    value: true,
+                                                    groupValue: _includeVat,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        _includeVat = value!;
+                                                      });
+                                                    },
+                                                  ),
+                                                  Text('Exclude VAT', style: TextStyle(fontSize: 14, color: Colors.black)),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (!_includeVat) ...[
+                                      Divider(height: 1, color: AppColors.primary),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: tableWidth * 0.4,
+                                            child: Text(
+                                              'VAT (%)',
+                                              style: TextStyle(fontSize: 14, fontFamily: 'Roboto', color: Colors.black),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: TextField(
+                                              controller: _vatController,
+                                              keyboardType: TextInputType.number,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                isDense: true,
+                                                suffixText: '%',
+                                              ),
+                                              style: TextStyle(fontSize: 14, color: Colors.black),
+                                              textAlign: TextAlign.right,
+                                              onTap: () {
+                                                if (_vatController.text == '0') {
+                                                  _vatController.clear();
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    Divider(height: 1, color: AppColors.primary),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: tableWidth * 0.4,
+                                          child: Text(
+                                            'Invoice Discount (৳)',
                                             style: TextStyle(fontSize: 14, fontFamily: 'Roboto', color: Colors.black),
                                           ),
                                         ),
@@ -371,6 +462,7 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
                                               isDense: true,
+                                              suffixText: '৳',
                                             ),
                                             style: TextStyle(fontSize: 14, color: Colors.black),
                                             textAlign: TextAlign.right,
@@ -484,7 +576,8 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                 final invoice = Invoice(
                                   invoiceNo: invoiceNumber,
                                   type: '1',
-                                  vat: _vatController.text,
+                                  // vat: _vatController.text,
+                                  vat: _includeVat ? _vatController.text : '0',
                                   items: cartItems
                                       .map((item) => InvoiceItem(
                                     customerId: widget.selectedCustomer?.id.toString(),
@@ -493,8 +586,8 @@ class _InvoiceTableWidgetState extends State<InvoiceTableWidget> {
                                     quantity: item.quantity.toString(),
                                     serials: item.product.code.toString(),
                                     price: item.product.price,
-                                    discount: widget.itemDiscounts[item]?.toString() ?? '0',
-                                    invDiscount: _invoiceDiscountController.text,
+                                    discount: widget.itemDiscounts[item]?.toString() ?? '0', // Discount as percentage
+                                    invDiscount: _invoiceDiscountController.text, // Absolute discount
                                     address: null,
                                     description: null,
                                     termsAndConditions: null,
